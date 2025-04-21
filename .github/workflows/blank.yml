@@ -1,0 +1,52 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: 'Cloudflare Pages project name'
+        required: true
+        default: 'gt6-cy-admin'
+      build_command:
+        description: 'Build command'
+        required: false
+        default: 'npm run build'
+      output_directory:
+        description: 'Output directory'
+        required: false
+        default: 'dist'
+      root_directory:
+        description: 'Root directory'
+        required: false
+        default: '/'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: ${{ github.event.inputs.build_command || 'npm run build' }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ github.event.inputs.project_name }}
+          directory: ${{ github.event.inputs.output_directory || 'dist' }}
+          branch: ${{ github.ref_name }}
+          commitHash: ${{ github.sha }}
+          commitMessage: ${{ github.event.head_commit.message }}
+          commitAuthor: ${{ github.event.head_commit.author.name }}
+          commitAuthorEmail: ${{ github.event.head_commit.author.email }} 
