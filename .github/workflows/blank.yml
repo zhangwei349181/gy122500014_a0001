@@ -6,7 +6,7 @@ on:
       project_name:
         description: 'Cloudflare Pages project name'
         required: true
-        default: 'gt6-cy-admin'
+        default: 'a0001'
       build_command:
         description: 'Build command'
         required: false
