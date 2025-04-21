@@ -19,6 +19,14 @@ on:
         description: 'Root directory'
         required: false
         default: '/'
+      api_token:
+        description: 'Cloudflare API Token'
+        required: true
+        type: string
+      account_id:
+        description: 'Cloudflare Account ID'
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -41,8 +49,8 @@ jobs:
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ github.event.inputs.api_token }}
+          accountId: ${{ github.event.inputs.account_id }}
           projectName: ${{ github.event.inputs.project_name }}
           directory: ${{ github.event.inputs.output_directory || 'dist' }}
           branch: ${{ github.ref_name }}
