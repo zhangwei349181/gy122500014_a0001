@@ -1,0 +1,190 @@
+---
+import Layout from '../../layouts/Layout.astro'; 
+import Header from '../../components/header02.astro';
+import Search from '../../components/search.astro';
+import Cart from '../../components/cart.astro';
+import Login from '../../components/login.astro';
+import Password from '../../components/password.astro';
+import Register from '../../components/register.astro';
+import Footer from '../../components/footer.astro';
+import { generateProductsHtml } from '../../templates/productCardTemplate.js';
+import { generateProductsGridHtml } from '../../templates/productGridTemplate.js';
+import { generatePaginationHtml } from '../../templates/paginationTemplate.js';
+import { generateBreadcrumbHtml } from '../../templates/breadcrumbTemplate.js';
+import { generateCategoryListHtml } from '../../templates/categoryListTemplate';
+import type { Category, CategoriesModuleImport } from '../../types/category';
+
+// 获取动态路由参数
+const { categoryId, pageId } = Astro.params;
+
+// 获取查询参数
+const url = new URL(Astro.request.url);
+const layout = url.searchParams.get('layout') || 'grid';
+
+if (!categoryId || !pageId) {
+    return Astro.redirect('/404');
+}
+
+// 获取商品列表数据
+const pageData = await import(`../../data/products/categories/${categoryId}/${pageId}.js`);
+
+// 获取分类信息
+const categoriesModule = await import('../../data/products/categories/categories.js') as unknown as CategoriesModuleImport;
+const categories = categoriesModule.default;
+
+// 查找分类路径的函数
+function findCategoryPath(categories: Category[], targetId: string): Category[] {
+    const path: Category[] = [];
+    
+    function findPath(cats: Category[], target: string, currentPath: Category[] = []): boolean {
+        for (const cat of cats) {
+            const newPath = [...currentPath, cat];
+            if (cat.category_id.toString() === target) {
+                path.push(...newPath);
+                return true;
+            }
+            if (cat.children) {
+                if (findPath(cat.children, target, newPath)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    findPath(categories, targetId);
+    return path;
+}
+
+// 获取当前分类的完整路径
+const categoryPath = findCategoryPath(categories, categoryId);
+const currentCategory = categoryPath[categoryPath.length - 1];
+
+// 设置页面标题
+const pageTitle = currentCategory ? `${currentCategory.category_name} - GT6TRADE` : '商品列表 - GT6TRADE';
+
+// 准备面包屑数据
+const breadcrumbItems = categoryPath.map((cat, index) => ({
+    name: cat.category_name,
+    url: index === categoryPath.length - 1 ? '' : `/productslist/${cat.category_id}-1`,
+    isLast: index === categoryPath.length - 1
+}));
+
+// 调试输出
+console.log('面包屑数据:', breadcrumbItems);
+console.log('分类数据:', JSON.stringify(categoryPath, null, 2));
+
+// 生成面包屑HTML
+const breadcrumbHtml = generateBreadcrumbHtml(breadcrumbItems);
+
+// 调试输出
+console.log('生成的面包屑HTML:', breadcrumbHtml);
+
+// 根据布局类型生成商品列表HTML
+const productsHtml = layout === 'grid' 
+    ? generateProductsGridHtml(pageData.default.products)
+    : generateProductsHtml(pageData.default.products);
+
+// 生成分页HTML
+const paginationHtml = pageData.default.pagination.total_pages > 1 
+    ? generatePaginationHtml(categoryId, pageData.default.pagination)
+    : '';
+
+// 生成分类列表HTML
+const categoryListHtml = generateCategoryListHtml(categories, categoryId);
+
+---
+
+<Layout title={pageTitle}>
+    <Header/>
+    <Search/>
+    <Cart/>
+    <Login/>
+    <Password/>
+    <Register/>
+
+    <!-- 商品列表 -->
+    <main>
+        <!-- Title -->
+        <section id="titile" class="page-title mb-5 bg-body-secondary" >
+            <div class="container">
+                <div class="text-center">
+                    <h1 class="title me-lg-auto mb-3">{currentCategory.category_name}</h1>
+                    <nav aria-label="breadcrumb" data-component="breadcrumb">
+                        <Fragment set:html={breadcrumbHtml} />
+                    </nav>
+                </div>
+            </div>
+        </section>
+        <!-- /Title -->
+        
+        <!-- Products -->
+        <section id="product" class="mb-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-xl-3 col-lg-4">
+                        <div class="pe-0 pe-lg-3" data-cue="fadeIn">
+                            <!-- Filter -->
+                            <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="ocFilter" aria-labelledby="ocFilterLabel">
+                                <div class="offcanvas-header">
+                                    <h3 class="offcanvas-title" id="ocFilterLabel">Filter products</h3>
+                                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#ocFilter" aria-label="Close"></button>
+                                </div>
+                                <div class="offcanvas-body">
+                                    <form class="w-100 mb-4 product-filter">
+                                        <div class="accordion" id="acdFilter">
+                                            <!-- Categories -->
+                                            <div class="accordion-item rounded-0">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button bg-transparent rounded-0 shadow-none text-body-emphasis" type="button" data-bs-toggle="collapse" data-bs-target="#filterCaterory" aria-expanded="true" aria-controls="filterCaterory">
+                                                        <span class="fs-5 fw-medium">Categories</span>
+                                                    </button>
+                                                </h2>
+                                                <div id="filterCaterory" class="accordion-collapse collapse show">
+                                                    <div class="accordion-body pt-0">
+                                                        <ul class="nav flex-column">
+                                                            <Fragment set:html={categoryListHtml} />
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- Filter -->
+                        </div>
+                    </div>
+                    <div class="col-12 col-xl-9 col-lg-8">
+                        <!-- Options -->
+                        <div class="d-block d-md-flex align-items-center" >
+                            <div class="d-flex me-lg-auto mb-3">
+                                <button class="btn-ctr btn btn-outline-light rounded-0 me-2 d-flex d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#ocFilter" aria-controls="ocFilter">
+                                    <i class="bi bi-funnel"></i>
+                                </button>
+                                <a href={`/productslist/${categoryId}-${pageId}?layout=grid`} 
+                                   class={`btn-ctr btn btn-outline-light rounded-0 me-2 ${layout === 'grid' ? 'active' : ''}`}>
+                                    <i class="bi bi-grid"></i>
+                                </a>
+                                <a href={`/productslist/${categoryId}-${pageId}?layout=list`} 
+                                   class={`btn-ctr btn btn-outline-light rounded-0 me-2 ${layout === 'list' ? 'active' : ''}`}>
+                                    <i class="bi bi-list"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Options -->
+                        <!-- Product list -->
+                        <div class="row g-4" set:html={productsHtml} />
+                        <!-- /Product list -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /Products -->
+
+        <!-- 分页 -->
+        <Fragment set:html={paginationHtml} />
+    </main>
+
+    <Footer/>
+</Layout> 

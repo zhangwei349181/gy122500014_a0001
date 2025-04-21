@@ -1,0 +1,177 @@
+<div class="mb-4">
+    <h2 class="h4 mb-3">Overview</h2>
+    <!-- 用户基本信息 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="border p-4 bg-light">
+                <div class="row g-4">
+                    <div class="col-12 col-md-4">
+                        <div class="text-center">
+                            <p class="text-secondary mb-1">用户名</p>
+                            <h5 class="h4 mb-0" id="username">加载中...</h5>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="text-center">
+                            <p class="text-secondary mb-1">用户等级</p>
+                            <h5 class="h4 mb-0 text-info" id="userLevel">加载中...</h5>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="text-center">
+                            <p class="text-secondary mb-1">账户状态</p>
+                            <h5 class="h4 mb-0 text-success" id="userStatus">加载中...</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 资金信息 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="border p-4 bg-light">
+                <div class="row g-4">
+                    <div class="col-12 col-md-4">
+                        <div class="text-center">
+                            <p class="text-secondary mb-1">可用余额</p>
+                            <h5 class="h4 mb-0 text-success" id="balance">加载中...</h5>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="text-center">
+                            <p class="text-secondary mb-1">冻结金额</p>
+                            <h5 class="h4 mb-0 text-warning" id="freeze">加载中...</h5>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="text-center">
+                            <p class="text-secondary mb-1">最后更新</p>
+                            <h5 class="h4 mb-0 text-secondary" id="fundUpdateTime">加载中...</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+  interface UserFunds {
+    balance: number;
+    freeze: number;
+    updated_at: string;
+  }
+
+  // 获取状态文本
+  function getUserStatusText(status: number): string {
+    switch (status) {
+      case 1: return '正常';
+      case 2: return '受限';
+      case 3: return '已禁用';
+      default: return '未知状态';
+    }
+  }
+
+  // 获取等级文本
+  function getUserLevelText(level: number): string {
+    switch (level) {
+      case 1: return '普通用户';
+      case 2: return 'VIP用户';
+      case 3: return '高级VIP';
+      default: return `Level ${level}`;
+    }
+  }
+
+  // 更新用户信息显示
+  function updateUserInfo() {
+    const userDataStr = localStorage.getItem('userData');
+    if (!userDataStr) return;
+
+    try {
+      const userData = JSON.parse(userDataStr);
+      
+      const usernameEl = document.getElementById('username');
+      const userLevelEl = document.getElementById('userLevel');
+      const userStatusEl = document.getElementById('userStatus');
+
+      if (usernameEl) {
+        usernameEl.textContent = userData.username;
+      }
+
+      if (userLevelEl) {
+        userLevelEl.textContent = getUserLevelText(userData.user_level);
+      }
+
+      if (userStatusEl) {
+        userStatusEl.textContent = getUserStatusText(userData.status);
+      }
+    } catch (error) {
+      console.error('解析用户数据失败:', error);
+    }
+  }
+
+  // 获取用户资金信息
+  async function fetchUserFunds() {
+    try {
+      const userDataStr = localStorage.getItem('userData');
+      if (!userDataStr) return;
+
+      const userData = JSON.parse(userDataStr);
+      if (!userData?.user_id) return;
+
+      const url = new URL('https://cyadmin.shopaeo.cn/api/user/funds');
+      url.searchParams.set('user_id', userData.user_id.toString());
+
+      const response = await fetch(url);
+      const data = await response.json() as {
+        success: boolean;
+        funds: UserFunds;
+      };
+      
+      if (response.ok && data.success) {
+        updateFundsInfo(data.funds);
+      }
+    } catch (error) {
+      console.error('获取用户资金信息失败:', error);
+    }
+  }
+
+  // 更新资金信息显示
+  function updateFundsInfo(funds: UserFunds) {
+    const balanceEl = document.getElementById('balance');
+    const freezeEl = document.getElementById('freeze');
+    const updateTimeEl = document.getElementById('fundUpdateTime');
+
+    if (balanceEl) {
+      balanceEl.textContent = `$${Number(funds.balance).toFixed(2)}`;
+    }
+
+    if (freezeEl) {
+      freezeEl.textContent = `$${Number(funds.freeze).toFixed(2)}`;
+    }
+
+    if (updateTimeEl) {
+      updateTimeEl.textContent = new Date(funds.updated_at).toLocaleString();
+    }
+  }
+
+  // 页面加载时更新用户信息
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      updateUserInfo();
+      fetchUserFunds();
+    });
+  } else {
+    updateUserInfo();
+    fetchUserFunds();
+  }
+
+  // 监听用户数据变化
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'userData') {
+      updateUserInfo();
+      fetchUserFunds();
+    }
+  });
+</script>

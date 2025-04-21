@@ -1,0 +1,24 @@
+{
+	"name": "cesbbb0003",
+	"type": "module",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"preview": "astro build && wrangler pages dev",
+		"astro": "astro",
+		"deploy": "astro build && wrangler pages deploy",
+		"cf-typegen": "wrangler types"
+	},
+	"dependencies": {
+		"@astrojs/cloudflare": "^12.3.1",
+		"astro": "^5.5.5",
+		"grapesjs": "^0.22.6",
+		"grapesjs-preset-webpage": "^1.0.3"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20250327.0",
+		"@types/node": "^22.13.14",
+		"wrangler": "^4.5.1"
+	}
+}

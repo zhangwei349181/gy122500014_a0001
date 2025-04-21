@@ -1,0 +1,49 @@
+---
+
+interface Props {
+	title?: string;
+	description?: string;
+	keywords?: string;
+}
+
+const { 
+	title = "GT6TRADE - IT Solutions & Technology",
+	description = "GT6TRADE - IT Solutions & Technology HTML Template",
+	keywords = "IT, Solutions, Technology, Software"
+} = Astro.props;
+---
+
+
+
+
+<!doctype html>
+  <html lang="en">
+    <head>
+      <!--layout star -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" type="image/png" href="assets/img/logo/favicon.png">
+        <meta name="description" content={description}/>
+        <meta name="keywords" content={keywords}/>
+        <title>
+          {title}
+        </title>
+        <link href="/assets/vendors/bootstrap/bootstrap.min.css" rel="stylesheet">
+        <link href="/assets/vendors/bootstrap-icons/bootstrap-icons.min.css" rel="stylesheet">
+        <link href="/assets/vendors/glightbox/glightbox.min.css" rel="stylesheet">
+        <link href="/assets/vendors/scrollCue/scrollcue.min.css" rel="stylesheet">
+        <link href="/assets/vendors/tiny-slider/tiny-slider.min.css" rel="stylesheet">
+        <link href="/assets/vendors/countdown/countdown.min.css" rel="stylesheet">
+        <link href="/assets/css/main.css" rel="stylesheet">
+        <!--layout end -->
+        </head>
+        <body>
+          <slot />
+            <script is:inline src="/assets/js/main.js"></script>
+            <script is:inline src="/assets/vendors/countdown/countdown.min.js"></script>
+            <script is:inline src="/assets/vendors/tiny-slider/tiny-slider.min.js"></script>
+            <script is:inline src="/assets/vendors/scrollCue/scrollcue.min.js"></script>
+            <script is:inline src="/assets/vendors/glightbox/glightbox.min.js"></script>
+            <script is:inline src="/assets/vendors/bootstrap/bootstrap.bundle.min.js"></script>
+        </body>
+      </html>

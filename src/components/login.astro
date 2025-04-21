@@ -1,0 +1,200 @@
+---
+title:11
+---
+    
+    <!--Login star-->
+    <div class="modal fade" id="mdlLogin" data-bs-keyboard="false" tabindex="-1" aria-labelledby="mdlLoginTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content p-3">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="mdlLoginTitle">Login</h3>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="needs-validation pt-2" id="loginForm" novalidate="">
+                        <!-- Login 用户名 -->
+                        <div class="mb-8">
+                            <div class="mb-4">
+                                <label for="txtEmail2" class="form-label">用户名<span class="text-danger">*</span></label>
+                                <input class="form-control form-control-lg fs-6 shadow-none rounded-0" type="text" id="txtEmail2" name="username2" value="" placeholder="" required="">
+                                <div class="invalid-feedback">请输入用户名</div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="txtPassword2" class="form-label">Password<span class="text-danger">*</span></label>
+                                <input class="form-control form-control-lg fs-6 shadow-none rounded-0" id="txtPassword2" name="password2" placeholder="" value="" type="password" required="">
+                                <div class="invalid-feedback">请输入密码</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="mb-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input shadow-sm" type="checkbox" value="" id="chkRemember2">
+                                            <label class="form-check-label" for="chkRemember2"><span class="text-body">记住我</span></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-4 text-end">
+                                        <a href="#mdlForgotPassword" data-bs-toggle="modal">忘记密码?</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <button type="submit" class="btn btn-lg fs-6 btn-dark w-50 rounded-0" id="btnSubmit2">
+                                    <i class="bi bi-shield-lock"></i>
+                                    <span>登录</span>
+                                </button>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-2"> 新用户? <a href="#mdlRegister" data-bs-toggle="modal">创建账号</a>
+                        </div>
+                        <!-- /Login Email -->
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Login end-->
+
+    <script>
+        // 声明 bootstrap 类型
+        declare const bootstrap: {
+            Modal: {
+                getInstance(element: HTMLElement | null): {
+                    hide(): void;
+                } | null;
+            };
+        };
+
+        // 定义登录数据类型
+        interface LoginData {
+            user_id: string;
+            username: string;
+            status: number;
+            avatar: string;
+            user_level: number;
+            platform_id: string;
+            d1: string;
+            d2: string;
+            d3: string;
+        }
+
+        // 定义登录响应类型
+        interface LoginResponse {
+            message: string;
+            user_id?: string;
+            username?: string;
+            status?: number;
+            avatar?: string;
+            user_level?: number;
+            platform_id?: string;
+            d1?: string;
+            d2?: string;
+            d3?: string;
+        }
+
+        // 获取登录表单元素
+        const loginForm = document.getElementById('loginForm') as HTMLFormElement;
+        const usernameInput = document.getElementById('txtEmail2') as HTMLInputElement;
+        const passwordInput = document.getElementById('txtPassword2') as HTMLInputElement;
+        const rememberCheckbox = document.getElementById('chkRemember2') as HTMLInputElement;
+
+        // 添加表单提交事件监听器
+        loginForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // 表单验证
+            if (!loginForm.checkValidity()) {
+                e.stopPropagation();
+                loginForm.classList.add('was-validated');
+                return;
+            }
+
+            try {
+                // 显示加载状态
+                const submitButton = document.getElementById('btnSubmit2') as HTMLButtonElement;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="bi bi-arrow-repeat"></i><span>登录中...</span>';
+
+                // 发送登录请求
+                const response = await fetch('https://cyadmin.shopaeo.cn/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: usernameInput.value,
+                        password: passwordInput.value
+                    })
+                });
+
+                const result = await response.json() as LoginResponse;
+
+                if (response.ok && result.message === '登录成功') {
+                    if (result.user_id && result.username) {
+                        // 保存登录数据到本地存储
+                        const loginData: LoginData = {
+                            user_id: result.user_id,
+                            username: result.username,
+                            status: result.status || 0,
+                            avatar: result.avatar || '',
+                            user_level: result.user_level || 0,
+                            platform_id: result.platform_id || '',
+                            d1: result.d1 || '',
+                            d2: result.d2 || '',
+                            d3: result.d3 || ''
+                        };
+
+                        localStorage.setItem('userData', JSON.stringify(loginData));
+
+                        // 如果选择了"记住我"，保存用户名和密码
+                        if (rememberCheckbox.checked) {
+                            localStorage.setItem('rememberedUsername', usernameInput.value);
+                            localStorage.setItem('rememberedPassword', passwordInput.value);
+                        } else {
+                            localStorage.removeItem('rememberedUsername');
+                            localStorage.removeItem('rememberedPassword');
+                        }
+
+                        // 关闭登录模态框
+                        const loginModal = document.getElementById('mdlLogin');
+                        if (loginModal) {
+                            const modal = bootstrap.Modal.getInstance(loginModal);
+                            modal?.hide();
+                        }
+
+                        // 显示成功消息
+                        alert('登录成功！');
+
+                        // 刷新页面或跳转到仪表板
+                        window.location.href = '/shop/dashboard';
+                    }
+                } else {
+                    // 显示错误消息
+                    alert(result.message || '登录失败，请检查用户名和密码');
+                }
+            } catch (error) {
+                console.error('登录请求失败:', error);
+                alert('登录请求失败，请稍后重试');
+            } finally {
+                // 恢复按钮状态
+                const submitButton = document.getElementById('btnSubmit2') as HTMLButtonElement;
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="bi bi-shield-lock"></i><span>登录</span>';
+            }
+        });
+
+        // 页面加载时检查是否有保存的用户名和密码
+        document.addEventListener('DOMContentLoaded', () => {
+            const rememberedUsername = localStorage.getItem('rememberedUsername');
+            const rememberedPassword = localStorage.getItem('rememberedPassword');
+            if (rememberedUsername && usernameInput) {
+                usernameInput.value = rememberedUsername;
+                if (rememberedPassword && passwordInput) {
+                    passwordInput.value = rememberedPassword;
+                }
+                rememberCheckbox.checked = true;
+            }
+        });
+    </script>

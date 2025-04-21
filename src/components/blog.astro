@@ -1,0 +1,78 @@
+---
+// 获取文章列表数据
+const pageData = await import(`../data/articles/tags/25/1.js`);
+
+
+// 格式化日期函数
+function formatDate(dateString: string | null): string {
+    if (!dateString) return '未发布';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// 获取文章摘要
+function getArticleExcerpt(content: string, maxLength: number = 30): string {
+    // 移除HTML标签
+    const plainText = content.replace(/<[^>]*>/g, '');
+    // 截取指定长度
+    return plainText.length > maxLength ? plainText.substring(0, maxLength) + '...' : plainText;
+}
+
+// 截取标题，限制显示长度
+function truncateTitle(title: string, maxLength: number = 15): string {
+    if (!title) return '';
+    return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
+}
+---
+  
+            <!--Blog star-->
+            <section id="blog" class="mb-5 pb-4">
+                <div class="container">
+                    <div class="mb-4 text-center">
+                        <h2>Miso blog</h2>
+                        <span class="d-block text-secondary fs-5 fw-light">Facer minimum adversarium ut mei</span>
+                    </div>
+                    <div class="row">
+                        {pageData.default.articles.map((article: any) => (
+                            <div class="col-12 col-xl-3 col-lg-4 col-md-6">
+                                <!-- Post -->
+                                <div class="card card-post border-0 m-2">
+                                    
+                                    <a href={`/post/${article.article_id}`} class="card-img-link overflow-hidden position-relative">
+                                        <img 
+                                            src={article.image_urls && article.image_urls.length > 0 ? article.image_urls[0] : 'assets/img/blog/b7.jpg'} 
+                                            class="card-img-top rounded-0 w-100" 
+                                            alt={article.title}
+                                        >
+                                    </a>
+                                    <div class="card-body ps-0 pe-0 border-bottom">
+                                        <h3 class="card-title h5 mb-3">
+                                            <a href={`/post/${article.article_id}`} class="link-body-emphasis link-hover" title={article.title}>
+                                                {truncateTitle(article.title)}
+                                            </a>
+                                        </h3>
+                                        <small class="d-flex align-items-center fw-light mb-3">
+                                            <span class="me-3">发布时间：{formatDate(article.published_at || article.created_at)}</span>
+                                        </small>
+                                        <p class="card-text">{getArticleExcerpt(article.content)}</p>
+                                    </div>
+                                </div>
+                                <!-- /Post -->
+                            </div>
+                        ))}
+                    </div>
+                    <div class="text-center pt-4">
+                        <a href="/postlist/3-1" class="btn btn-lg btn-outline-dark fs-6 rounded-0">
+                            <span>View all</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            <!--Blog end-->

@@ -1,0 +1,242 @@
+---
+import Layout from '../../layouts/Layout.astro'; 
+import Header from '../../components/header02.astro';
+import Search from '../../components/search.astro';
+import Cart from '../../components/cart.astro';
+import Login from '../../components/login.astro';
+import Password from '../../components/password.astro';
+import Register from '../../components/register.astro';
+import Footer from '../../components/footer.astro';
+
+---
+
+<Layout title="shopping cart">
+
+    <Header/>
+    <Search/>
+    <Cart/>
+    <Login/>
+    <Password/>
+    <Register/>
+    <!-- Main -->
+    <main>
+
+        <!-- Title -->
+        <section id="titile" class="page-title mb-5 bg-body-secondary" data-cue="fadeIn">
+            <div class="container">
+                <div class="text-center">
+                    <h1 class="title me-lg-auto mb-3">Shopping cart</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-3 text-secondary justify-content-center">
+                            <li class="breadcrumb-item"><a href="\" class="link-dark">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Shopping cart</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </section>
+        <!-- /Title -->
+
+        <!-- cart -->
+        <section id="cart" class="mb-5">
+            <div class="container">
+                <div class="row g-0" data-cue="fadeIn">
+                    <div class="col-12 col-lg-8">
+                        <!-- Products-->
+                       <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col" class="fw-medium text-uppercase">产品</th>
+                                    <th scope="col" class="fw-medium text-uppercase">单价</th>
+                                    <th scope="col" class="fw-medium text-uppercase">数量</th>
+                                    <th scope="col" class="fw-medium text-uppercase">总计</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cart-items">
+                                <!-- 购物车商品将通过 JavaScript 动态加载 -->
+                            </tbody>
+                        </table>
+                       </div>
+                        <!-- /Products-->
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <!-- Update & Checkout-->
+                        <div class="mb-4 ms-0 ms-lg-5">
+                            <div class="border-bottom pb-4 mb-4">
+                                <div class="row">
+                                    <div class="col-12 col-xl-6 col-lg-12 col-md-6">
+                                        <button class="btn btn-lg fs-6 btn-outline-dark rounded-0 w-100 mb-3" id="btnClearCart">
+                                            <i class="bi bi-x"></i>
+                                            <span>清空购物车</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <form class="card bg-light rounded-0" action="payoders">
+                                <div class="card-body p-4">
+                                    <div class="d-lg-flex align-items-center mb-3">
+                                        <span class="me-auto">商品总额</span>
+                                        <strong id="subtotal">¥0.00</strong>
+                                    </div>
+                                    <div class="d-lg-flex align-items-center mb-3">
+                                        <span class="me-auto">运费总额</span>
+                                        <strong id="total-shipping">¥0.00</strong>
+                                    </div>
+                                    <div class="d-lg-flex align-items-center mb-3">
+                                        <span class="me-auto">税费总额</span>
+                                        <strong id="total-tax">¥0.00</strong>
+                                    </div>
+                                    <hr>
+                                    <div class="d-lg-flex align-items-center mb-3 fs-4 fw-medium">
+                                        <span class="me-auto">总计金额</span>
+                                        <strong class="text-danger" id="total-amount">¥0.00</strong>
+                                    </div>
+                                    <button class="btn btn-lg btn-primary fs-6 rounded-0 w-100" type="submit" id="btnCheckout">
+                                        <i class="bi bi-credit-card"></i>
+                                        <span>去结算</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /Update & Checkout-->
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /cart -->
+
+    </main>
+    <!-- /Main -->
+
+    <Footer/>
+
+    <script>
+        // 定义全局删除函数
+        window.removeFromCart = function(index) {
+            try {
+                const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+                if (index >= 0 && index < cartItems.length) {
+                    cartItems.splice(index, 1);
+                    localStorage.setItem('cart', JSON.stringify(cartItems));
+                    loadCart(); // 重新加载购物车
+                }
+            } catch (error) {
+                console.error('删除商品失败:', error);
+                alert('删除商品失败，请重试');
+            }
+        };
+
+        // 加载购物车数据
+        function loadCart() {
+            try {
+                const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+                const tbody = document.getElementById('cart-items');
+                if (!tbody) return;
+                
+                tbody.innerHTML = '';
+                
+                let subtotal = 0;
+                let totalShipping = 0;
+                let totalTax = 0;
+                
+                cartItems.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    totalShipping += item.shipping_fee;
+                    totalTax += item.tax_fee;
+                    
+                    row.innerHTML = `
+                        <th class="pt-3 pb-3 fw-medium" scope="row">${index + 1}</th>
+                        <td class="pt-3 pb-3">
+                            <div class="link-body-emphasis link-hover d-flex align-items-center">
+                                <a href="/shop/product/${item.product_id}" class="flex-shrink-0">
+                                    <img src="${item.product_image}" width="100" alt="${item.product_name}">
+                                </a>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="fw-medium">
+                                        <a href="/shop/product/${item.product_id}" class="link-body-emphasis">
+                                            ${item.product_name}
+                                        </a>
+                                    </h6>
+                                    <small class="text-secondary d-block mb-1">
+                                        <span>SKU: </span>
+                                        <strong>${item.sku}</strong>
+                                    </small>
+                                    <small class="text-secondary d-block mb-1">
+                                        <span>运费: </span>
+                                        <strong>¥${item.shipping_fee.toFixed(2)}</strong>
+                                    </small>
+                                    <small class="text-secondary d-block mb-1">
+                                        <span>税费: </span>
+                                        <strong>¥${item.tax_fee.toFixed(2)}</strong>
+                                    </small>
+                                    <a href="#" class="d-block link-danger delete-item" data-index="${index}">
+                                        <i class="bi bi-x"></i>
+                                        <span>删除</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="pt-3 pb-3">¥${item.price.toFixed(2)}</td>
+                        <td class="pt-3 pb-3">
+                            ${item.quantity}
+                        </td>
+                        <td class="pt-3 pb-3">¥${itemTotal.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                // 更新总计金额
+                const subtotalEl = document.getElementById('subtotal');
+                const totalShippingEl = document.getElementById('total-shipping');
+                const totalTaxEl = document.getElementById('total-tax');
+                const totalAmountEl = document.getElementById('total-amount');
+                
+                if (subtotalEl) subtotalEl.textContent = `¥${subtotal.toFixed(2)}`;
+                if (totalShippingEl) totalShippingEl.textContent = `¥${totalShipping.toFixed(2)}`;
+                if (totalTaxEl) totalTaxEl.textContent = `¥${totalTax.toFixed(2)}`;
+                if (totalAmountEl) totalAmountEl.textContent = 
+                    `¥${(subtotal + totalShipping + totalTax).toFixed(2)}`;
+                
+                // 更新按钮状态
+                const hasItems = cartItems.length > 0;
+                const btnClearCart = document.getElementById('btnClearCart') as HTMLButtonElement;
+                const btnCheckout = document.getElementById('btnCheckout') as HTMLButtonElement;
+                
+                if (btnClearCart) btnClearCart.disabled = !hasItems;
+                if (btnCheckout) btnCheckout.disabled = !hasItems;
+                
+                // 绑定删除按钮事件
+                document.querySelectorAll('.delete-item').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const index = parseInt(this.getAttribute('data-index') || '0');
+                        removeFromCart(index);
+                    });
+                });
+                
+            } catch (error) {
+                console.error('加载购物车数据失败:', error);
+                alert('加载购物车数据失败，请刷新页面重试');
+            }
+        }
+        
+        // 清空购物车
+        const btnClearCart = document.getElementById('btnClearCart');
+        if (btnClearCart) {
+            btnClearCart.addEventListener('click', function() {
+                if (confirm('确定要清空购物车吗？')) {
+                    localStorage.removeItem('cart');
+                    loadCart();
+                }
+            });
+        }
+        
+        // 页面加载时初始化购物车
+        document.addEventListener('DOMContentLoaded', loadCart);
+    </script>
+
+</Layout>

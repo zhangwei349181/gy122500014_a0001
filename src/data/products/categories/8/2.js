@@ -1,0 +1,107 @@
+// 分类 8 的第 2 页产品列表数据 - 自动生成，请勿手动修改
+export default {
+  "products": [
+    {
+      "product_id": 16,
+      "product_name": "早春设计感荷叶领刺绣衬衣",
+      "description": "<p>这款白色勾花镂空衬衫以法式浪漫风格为灵感，融合精致的蕾丝镂空元素与宽松舒适的版型，呈现出柔美与优雅并存的魅力。</p><ul><li><strong>复古V领</strong>：领口与前襟的镂空花边设计，层层叠叠如花瓣般绽放，巧妙修饰颈部线条，增添法式复古气息。</li><li><strong>精致镂空</strong>：衣身及袖口处的勾花镂空细节，让纯色白衬衫更富层次感与浪漫氛围。</li><li><strong>宽松版型</strong>：棉质面料配合宽松剪裁，柔软亲肤且透气，让你在日常穿着中感受到轻盈自在。</li><li><strong>百搭风格</strong>：可随意搭配牛仔裤、半身裙或阔腿裤，轻松切换休闲或通勤场合，展现多样造型。</li></ul><p>无论是日常出街还是聚会约会，这款衬衫都能以细腻的细节与舒适的穿着体验，助你在每个场合都散发浪漫自信的优雅魅力。</p>",
+      "meta_keywords": "勾花镂空衬衫",
+      "price": 125,
+      "status": 1,
+      "product_type": 1,
+      "native": 1,
+      "shared": 2,
+      "created_at": "2025-04-04 16:04:05",
+      "updated_at": "2025-04-05 21:07:27",
+      "platform_id": 1,
+      "oldproduct_id": 0,
+      "thumbnail": "https://img.goodsoftwarepro.com/1743887188475-9.png"
+    },
+    {
+      "product_id": 14,
+      "product_name": "日系学院风印花防晒衬衣",
+      "description": "<p>这件印花衬衫充满趣味与个性，搭配绿底狐狸刺绣领带，让整体造型既复古又富有童趣感。</p><ul><li><strong>创意印花</strong>：衬衫上分布着手绘风格的标志、动物图案与文字，彰显独特艺术氛围；色彩柔和，增添法式浪漫气息。</li><li><strong>细节设计</strong>：翻领与常规袖口的剪裁利落，搭配正面排扣，简洁大方；肩线与腰线的合身版型，巧妙修饰身形。</li><li><strong>百搭配饰</strong>：绿色领带上的狐狸刺绣为整体增加亮点，既能与印花元素呼应，也让搭配更具故事感和层次感。</li><li><strong>面料舒适</strong>：轻薄透气的材质，贴合肌肤不紧绷，让你在日常通勤或聚会时都能轻松穿着。</li></ul><p>无论是搭配半身裙、阔腿裤，还是牛仔裤，这件印花衬衫都能展现独特的审美与品位，让你在细节处脱颖而出。</p>",
+      "meta_keywords": "印花衬衫",
+      "price": 88,
+      "status": 1,
+      "product_type": 1,
+      "native": 1,
+      "shared": 2,
+      "created_at": "2025-04-04 15:34:06",
+      "updated_at": "2025-04-05 21:21:32",
+      "platform_id": 1,
+      "oldproduct_id": 0,
+      "thumbnail": "https://img.goodsoftwarepro.com/1743888222579-25.png"
+    },
+    {
+      "product_id": 13,
+      "product_name": "飘带绑带设计感小立领吊带背心",
+      "description": "<p>这款黑色无袖上衣以颈部系带设计为亮点，勾勒出干练又优雅的轮廓。</p><ul><li><strong>颈部系带</strong>：独特的蝴蝶结或系带造型为整体增添精致感，轻松展现女性魅力。</li><li><strong>利落剪裁</strong>：无袖设计与贴合身形的版型，凸显肩颈线条，尽显都市时髦风格。</li><li><strong>舒适面料</strong>：柔软且富有弹性的材质，亲肤又透气，让你在各种场合都能自在穿着。</li><li><strong>百搭款式</strong>：简约大气的纯色设计，无论搭配高腰裤、铅笔裙或阔腿裤，都能轻松切换通勤与休闲造型。</li></ul><p>无论是上班通勤、聚会或约会，这款上衣都能助你在细节中彰显优雅与个性。</p>",
+      "meta_keywords": "无袖",
+      "price": 88,
+      "status": 1,
+      "product_type": 1,
+      "native": 1,
+      "shared": 2,
+      "created_at": "2025-04-04 14:33:33",
+      "updated_at": "2025-04-05 21:29:05",
+      "platform_id": 1,
+      "oldproduct_id": 0,
+      "thumbnail": "https://img.goodsoftwarepro.com/1743888364594-29.png"
+    },
+    {
+      "product_id": 11,
+      "product_name": "蓝白条纹新中式小立领",
+      "description": "<p>这款浅蓝色条纹上衣以立领与白色立领为设计亮点，融合通勤与简约风格，轻松演绎优雅气质。</p><ul><li><strong>立领设计</strong>：干净利落的立领搭配部分排扣门襟，增添细节感与时尚度，同时修饰颈部线条。</li><li><strong>舒适面料</strong>：亲肤且透气的面料，适合日常通勤或休闲场合，让你全天都能保持舒适。</li><li><strong>宽松版型</strong>：不挑身材的宽松剪裁，搭配长袖设计，既能遮挡小臂又凸显随性慵懒风。</li><li><strong>简约条纹</strong>：细密的蓝白条纹清新淡雅，百搭且不易过时，可与牛仔裤、休闲裤或半身裙自由搭配。</li></ul><p>无论是上班、约会还是周末出游，这款上衣都能让你在不经意间流露出干练与温柔并存的时尚魅力。</p>",
+      "meta_keywords": "",
+      "price": 89,
+      "status": 1,
+      "product_type": 1,
+      "native": 1,
+      "shared": 2,
+      "created_at": "2025-04-04 12:20:27",
+      "updated_at": "2025-04-06 12:02:07",
+      "platform_id": 1,
+      "oldproduct_id": 0,
+      "thumbnail": "https://img.goodsoftwarepro.com/1743888788135-1.png"
+    },
+    {
+      "product_id": 9,
+      "product_name": "纯棉白色衬衫外套长袖收腰上衣",
+      "description": "<p>这款白色衬衫以腰部立体褶皱设计为亮点，巧妙收束腰线，展现出优雅的曲线美。</p><ul><li><strong>简约翻领</strong>：搭配单排扣门襟，塑造干练与大方的风格，适合通勤与日常穿搭。</li><li><strong>柔软面料</strong>：选用亲肤透气的材质，保证舒适度与耐穿度，让你在忙碌的日常中也能自在自信。</li><li><strong>百搭款式</strong>：无论搭配牛仔裤、阔腿裤或裙装，都能轻松切换休闲与时尚，打造多变造型。</li><li><strong>细节升级</strong>：褶皱元素凸显立体感，不仅增添设计感，更能修饰身形，营造优雅气质。</li></ul><p>穿上这款衬衫，让你在举手投足间尽显柔美与干练的平衡，为日常造型注入时尚与魅力。</p>",
+      "meta_keywords": "褶皱元素 白色衬衫",
+      "price": 110,
+      "status": 1,
+      "product_type": 1,
+      "native": 1,
+      "shared": 2,
+      "created_at": "2025-04-04 07:03:06",
+      "updated_at": "2025-04-06 12:05:09",
+      "platform_id": 1,
+      "oldproduct_id": 0,
+      "thumbnail": "https://img.goodsoftwarepro.com/1743941201538-9.png"
+    },
+    {
+      "product_id": 8,
+      "product_name": "法式白色镂空绣花简约衬衫",
+      "description": "<p>这款白色刺绣上衣以简约与精致并存的设计，轻松演绎时尚格调。</p><ul><li><strong>柔软面料</strong>：选用舒适透气的棉质材质，触感柔和，让肌肤全天享受自在。</li><li><strong>精美刺绣</strong>：衣身正面两侧及袖部的镂空刺绣图案，为整体增添细腻浪漫的艺术感。</li><li><strong>宽松剪裁</strong>：轻盈的廓形与自然垂坠的版型，既能修饰身形，也能带来自由无束的穿着体验。</li><li><strong>百搭设计</strong>：简洁的白色与开襟领口设计，适合多种场合，搭配牛仔裤或半身裙都能轻松打造休闲或优雅造型。</li></ul><p>无论是日常通勤，还是休闲聚会，这款刺绣上衣都能在细节中展现你的独特品味与魅力。</p>",
+      "meta_keywords": "",
+      "price": 119,
+      "status": 1,
+      "product_type": 1,
+      "native": 1,
+      "shared": 2,
+      "created_at": "2025-04-04 06:33:54",
+      "updated_at": "2025-04-04 07:19:52",
+      "platform_id": 1,
+      "oldproduct_id": 0,
+      "thumbnail": "https://img.goodsoftwarepro.com/1743941329495-13.png"
+    }
+  ],
+  "pagination": {
+    "current_page": 2,
+    "total_pages": 2,
+    "total_items": 15,
+    "categoryId": "8"
+  }
+};

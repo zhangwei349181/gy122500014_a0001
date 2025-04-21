@@ -1,0 +1,148 @@
+---
+import Layout from '../../layouts/Layout.astro'; 
+import Header from '../../components/header02.astro';
+import Search from '../../components/search.astro';
+import Cart from '../../components/cart.astro';
+import Login from '../../components/login.astro';
+import Password from '../../components/password.astro';
+import Register from '../../components/register.astro';
+import Dashboard01 from '../../components/dashboard.astro';
+import Usermenu from '../../components/usermenu.astro';
+import Footer from '../../components/footer.astro';
+
+---
+
+<Layout title="收藏夹">
+
+    <Header/>
+    <Search/>
+    <Cart/>
+    <Login/>
+    <Password/>
+    <Register/>
+    <!-- Main -->
+    <main>
+
+    <Usermenu/>
+    <!-- wishlist -->
+    <section id="wishlist" class="mb-5">
+        <div class="container">
+            <div class="row g-0 g-md-5 mb-5">
+              <Dashboard01></Dashboard01>
+                <div class="col-12">
+<!-- Products list -->
+<div class="mb-5" data-cues="fadeIn">
+    <h1 class="h2 mb-4 pb-2">我的收藏</h1>
+    <div class="row g-0 g-md-4" id="wishlistContainer">
+        <!-- 收藏商品将通过 JavaScript 动态加载 -->
+    </div>
+    <div class="pt-2 text-center" id="loadMoreContainer" style="display: none;">
+        <button class="btn btn-outline-dark rounded-0" id="loadMoreBtn">
+            <i class="bi bi-arrow-clockwise"></i>
+            <span>加载更多</span>
+        </button>
+    </div>
+</div>
+<!-- /Products list -->
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- /wishlist -->
+
+</main>
+<!-- /Main -->
+
+    <Footer/>
+
+    <script>
+        // 每页显示的商品数量
+        const ITEMS_PER_PAGE = 6;
+        let currentPage = 1;
+
+        // 生成商品卡片HTML
+        function generateProductCard(item) {
+            return `
+                <div class="col-12 col-lg-4 col-md-6">
+                    <div class="card card-product text-center border-0 rounded-0 mb-4 mb-md-0">
+                        <div class="card-img-box position-relative overflow-hidden">
+                            <a href="/products/${item.product_id}" class="card-img-link">
+                                <img src="${item.product_image}" class="card-img-top rounded-0" alt="${item.product_name}">
+                            </a>
+                            <a href="/products/${item.product_id}" class="btn-add-cart btn btn-lg btn-dark w-100 fs-6 rounded-0 bottom-0 start-0 position-absolute">
+                                <i class="bi bi-bag"></i>
+                                <span>查看商品</span>
+                            </a>
+                            <button type="button" class="btn-like liked fs-6 btn btn-lg btn-outline-light p-0 position-absolute top-0 end-0 rounded-circle mt-3 me-3" 
+                                    data-product-id="${item.product_id}">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title fw-normal">
+                                <a href="/products/${item.product_id}" class="link-body-emphasis">${item.product_name}</a>
+                            </h5>
+                            <div class="card-text">
+                                <strong class="text-danger">¥${item.price}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 加载收藏商品
+        function loadWishlistItems() {
+            try {
+                const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+                const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+                const endIndex = startIndex + ITEMS_PER_PAGE;
+                const pageItems = wishlist.slice(startIndex, endIndex);
+                
+                const container = document.getElementById('wishlistContainer');
+                const loadMoreContainer = document.getElementById('loadMoreContainer');
+                
+                if (pageItems.length > 0) {
+                    pageItems.forEach(item => {
+                        container.insertAdjacentHTML('beforeend', generateProductCard(item));
+                    });
+                    
+                    // 显示/隐藏加载更多按钮
+                    loadMoreContainer.style.display = endIndex < wishlist.length ? 'block' : 'none';
+                } else {
+                    container.innerHTML = '<div class="col-12 text-center"><p class="text-muted">暂无收藏商品</p></div>';
+                    loadMoreContainer.style.display = 'none';
+                }
+
+                // 为收藏按钮添加点击事件
+                document.querySelectorAll('.btn-like').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.dataset.productId;
+                        const updatedWishlist = wishlist.filter(item => item.product_id.toString() !== productId);
+                        localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+                        
+                        // 重新加载页面
+                        location.reload();
+                    });
+                });
+            } catch (error) {
+                console.error('加载收藏列表失败:', error);
+                document.getElementById('wishlistContainer').innerHTML = 
+                    '<div class="col-12 text-center"><p class="text-danger">加载失败，请刷新页面重试</p></div>';
+            }
+        }
+
+        // 加载更多按钮点击事件
+        document.getElementById('loadMoreBtn')?.addEventListener('click', function() {
+            currentPage++;
+            loadWishlistItems();
+        });
+
+        // 页面加载时加载收藏商品
+        document.addEventListener('DOMContentLoaded', loadWishlistItems);
+
+        // 监听收藏列表更新事件
+        window.addEventListener('wishlistUpdated', loadWishlistItems);
+    </script>
+
+</Layout>

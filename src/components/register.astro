@@ -1,0 +1,59 @@
+---
+title:11
+---
+
+<!--Register star-->
+    <div class="modal fade" id="mdlRegister" data-bs-keyboard="false" tabindex="-1" aria-labelledby="mdlRegisterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content p-3">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="mdlRegisterTitle">Register</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="needs-validation pt-2" method="post" novalidate="" action="login.html">
+                        <!-- Register -->
+                        <div class="row">
+                            <div class="col-24">
+                                <div class="mb-4">
+                                    <label for="txtEmail3" class="form-label">Email<span class="text-danger">*</span></label>
+                                    <input class="form-control form-control-lg fs-6 shadow-none rounded-0" id="txtEmail3" type="email" name="email3" value="" placeholder="" required="">
+                                    <div class="invalid-feedback"> Please enter Email. </div>
+                                </div>
+                            </div>
+                            <div class="col-24">
+                                <div class="mb-4">
+                                    <label for="txtPassword3" class="form-label">Password<span class="text-danger">*</span></label>
+                                    <input class="form-control form-control-lg fs-6 shadow-none rounded-0" id="txtPassword3" name="password3" placeholder="" value="" type="password" required="">
+                                    <div class="invalid-feedback"> Please enter password. </div>
+                                </div>
+                            </div>
+                            <div class="col-24">
+                                <div class="mb-4">
+                                    <label for="txtRetypePassword3" class="form-label">Retype password<span class="text-danger">*</span></label>
+                                    <input class="form-control form-control-lg fs-6 shadow-none rounded-0" id="txtRetypePassword3" name="retypepassword3" placeholder="" value="" type="password" required="">
+                                    <div class="invalid-feedback"> Please enter password. </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-check mb-4">
+                            <input class="form-check-input shadow-none rounded-0" type="checkbox" value="" id="chckAgree3" required="">
+                            <label class="form-check-label" for="chckAgree3"> I agree to <a href="#" class="hover">terms
+                                    and policy<span class="text-danger">*</span></a>. </label>
+                        </div>
+                        <div class="mb-4">
+                            <button class="btn btn-lg fs-6 btn-dark w-50 rounded-0" id="btnSubmit3">
+                                <i class="bi bi-person-lock"></i>
+                                <span>Register</span>
+                            </button>
+                        </div>
+                        <hr>
+                        <div class="mb-2"> Already have an account? <a href="#mdlLogin" data-bs-toggle="modal">Login</a>
+                        </div>
+                        <!-- /Register -->
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Register end-->

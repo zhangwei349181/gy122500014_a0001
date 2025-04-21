@@ -1,0 +1,51 @@
+---
+import Layout from '../layouts/Layout.astro'; 
+import Header from '../components/header.astro';
+import Search from '../components/search.astro';
+import Cart from '../components/cart.astro';
+import Login from '../components/login.astro';
+import Password from '../components/password.astro';
+import Register from '../components/register.astro';
+import Slide from '../components/slide.astro';
+import Categories from '../components/categories.astro';
+import Arrival from '../components/arrival.astro';
+import Promotion from '../components/promotion.astro';
+import Bestsellers from '../components/bestsellers.astro';
+import Blog from '../components/blog.astro';
+import Footer from '../components/footer.astro';
+---
+
+<Layout title="GT6TRADE - About Us">
+    <Header/>
+    <Search/>
+    <Cart/>
+    <Login/>
+    <Password/>
+    <Register/>
+
+    <!-- Main -->
+    <main>
+        <Slide/>
+        <Categories/>
+        <Arrival/>
+        <Promotion/>
+        <Bestsellers/>
+        <Blog/>
+
+
+    </main>
+
+    <!-- /Main -->
+        <Footer/>
+
+
+
+    <!-- Preloader -->
+    <!-- <div class="position-fixed top-0 bottom-0 bg-white vw-100 d-flex align-items-center justify-content-center z-zn" id="preloader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div> -->
+    <!-- /Preloader -->
+</Layout>
+

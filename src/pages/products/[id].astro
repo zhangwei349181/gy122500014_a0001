@@ -1,0 +1,189 @@
+---
+import Layout from '../../layouts/Layout.astro'; 
+import Header from '../../components/header02.astro';
+import Search from '../../components/search.astro';
+import Cart from '../../components/cart.astro';
+import Login from '../../components/login.astro';
+import Password from '../../components/password.astro';
+import Register from '../../components/register.astro';
+import Footer from '../../components/footer.astro';
+import { generateProductDetailHtml } from '../../templates/productDetailTemplate.js';
+import { generateProductPurchaseHtml } from '../../templates/productPurchaseTemplate.js';
+import type { Category } from '../../types/category';
+
+interface ProductDetail {
+    name: string;
+    description: string;
+    tags: Array<{ name: string; tag_id: number | string }>;
+    categories: Category[];
+    parameters: Array<{
+        key: string;
+        value: string;
+    }>;
+    description01: Array<{
+        key: string;
+        value: string;
+    }>;
+}
+
+interface ProductDetailResponse {
+    carouselHtml: string;
+    thumbnailsHtml: string;
+    product: ProductDetail;
+}
+
+interface ProductDetailData {
+    details: Array<{
+        extra_info: string;
+        detail_value: string;
+    }>;
+}
+
+interface ProductTag {
+    name: string;
+    tag_id: number | string;
+}
+
+// 获取动态路由参数
+const { id } = Astro.params;
+
+// 获取查询参数
+const url = new URL(Astro.request.url);
+
+if (!id) {
+    return Astro.redirect('/404');
+}
+
+// 获取商品详情数据
+const pageData = await import(`../../data/products/items/${id}.js`) as { default: ProductDetailData };
+
+// 生成商品详情HTML
+const { carouselHtml, product } = await generateProductDetailHtml(pageData.default) as ProductDetailResponse;
+const purchaseHtml = generateProductPurchaseHtml(pageData.default);
+
+// 设置页面标题
+const pageTitle = `${product.name} - GT6TRADE`;
+
+---
+
+<Layout title={pageTitle}>
+    <Header/>
+    <Search/>
+    <Cart/>
+    <Login/>
+    <Password/>
+    <Register/>
+
+    <main>
+        <!-- Page title -->
+        <section id="titile" class="page-title page-title-sm mb-5 bg-body-secondary">
+            <div class="container">
+                <div class="d-flex align-items-center">
+                    <nav aria-label="breadcrumb" class="me-auto">
+                        <ol class="breadcrumb mb-3 text-secondary">
+                            <li class="breadcrumb-item"><a href="/" class="link-dark">首页</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">{product.name}</li>
+                        </ol>
+                    </nav>
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center text-secondary">
+                            <h6 class="me-2 mb-0">所属分类:</h6>
+                            <ul class="list-inline mb-0">
+                                {product.categories.map((category: Category, index: number) => (
+                                    <li class="list-inline-item">
+                                        <a href={`/productslist/${category.category_id}-1`}>{category.category_name}</a>
+                                        {index < product.categories.length - 1 ? ',' : ''}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /Page title -->
+
+        <!-- Product Detail -->
+        <section id="product" class="mb-5">
+            <div class="container">
+                <div class="row g-0 g-md-5 mb-5">
+                    <div class="col-12 col-xl-5 col-lg-6">
+                        <!-- Photos -->
+                        <Fragment set:html={carouselHtml} />
+                        <!-- /Photos -->
+                    </div>
+                    <div class="col-12 col-xl-7 col-lg-6">
+                        <div>
+                            <!-- Overview -->
+                            <h1 class="h2 mb-4">{product.name}</h1>
+                            <div class="mb-4">
+                                <p class="mb-0" set:html={product.description}></p>
+                            </div>
+                            <!-- /Overview -->
+                            <!-- Purchase Info -->
+                            <Fragment set:html={purchaseHtml} />
+                            <!-- /Purchase Info -->
+                            <!-- Tags -->
+                            <div class="mb-4">
+                                <div class="mb-4 d-flex align-items-lg-center">
+                                    <h6 class="mb-0 me-2">标签:</h6>
+                                    <ul class="list-inline mb-0">
+                                        {product.tags.map((tag: ProductTag, index: number) => (
+                                            <li class="list-inline-item">
+                                                <a href={`/productstag/${tag.tag_id}-1`} class="link-body-emphasis">{tag.name}</a>
+                                                {index < product.tags.length - 1 ? ',' : ''}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- /Tags -->
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <ul class="nav nav-tabs nav-tab-product" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-medium text-uppercase pt-3 pb-3 ps-4 pe-4 active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description-tab-pane" type="button" role="tab" aria-controls="description-tab-pane" aria-selected="true">
+                                    商品描述
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-medium text-uppercase pt-3 pb-3 ps-4 pe-4" id="parameter-tab" data-bs-toggle="tab" data-bs-target="#parameter-tab-pane" type="button" role="tab" aria-controls="parameter-tab-pane" aria-selected="false">
+                                    商品参数
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content pt-4" id="myTabContent">
+                            <div class="tab-pane fade show active" id="description-tab-pane" role="tabpanel" aria-labelledby="description-tab" tabindex="0">
+                                {product.description01.map((desc, index) => (
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">{desc.key}</h6>
+                                        <div set:html={desc.value}></div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div class="tab-pane fade" id="parameter-tab-pane" role="tabpanel" aria-labelledby="parameter-tab" tabindex="0">
+                                {product.parameters.map((param, index) => (
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">{param.key}</h6>
+                                        <div set:html={param.value}></div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /Product Detail -->
+
+        <!-- Releated product -->
+        
+        <!-- /Releated product -->
+
+    </main>
+
+    <Footer/>
+</Layout> 

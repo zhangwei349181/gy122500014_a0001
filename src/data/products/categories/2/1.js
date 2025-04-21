@@ -1,0 +1,107 @@
+// 分类 2 的第 1 页产品列表数据 - 自动生成，请勿手动修改
+export default {
+  "products": [
+    {
+      "product_id": 7,
+      "product_name": "4444",
+      "description": "<p>4444</p>",
+      "meta_keywords": "444",
+      "price": 44,
+      "status": 1,
+      "product_type": 2,
+      "native": 1,
+      "shared": 1,
+      "created_at": "2025-03-23 16:22:06",
+      "updated_at": "2025-03-26 16:03:33",
+      "platform_id": 1,
+      "oldproduct_id": 0,
+      "thumbnail": null
+    },
+    {
+      "product_id": 6,
+      "product_name": "33333",
+      "description": "<p>33333</p>",
+      "meta_keywords": "3333",
+      "price": 33,
+      "status": 1,
+      "product_type": 4,
+      "native": 1,
+      "shared": 1,
+      "created_at": "2025-03-23 16:12:51",
+      "updated_at": "2025-04-02 14:32:02",
+      "platform_id": 1,
+      "oldproduct_id": 0,
+      "thumbnail": null
+    },
+    {
+      "product_id": 5,
+      "product_name": "111222",
+      "description": "<p>111222333</p>",
+      "meta_keywords": "111222",
+      "price": 100,
+      "status": 1,
+      "product_type": 3,
+      "native": 1,
+      "shared": 2,
+      "created_at": "2025-03-23 09:32:09",
+      "updated_at": "2025-03-27 09:40:37",
+      "platform_id": 1,
+      "oldproduct_id": 0,
+      "thumbnail": null
+    },
+    {
+      "product_id": 4,
+      "product_name": "22222",
+      "description": "<p>22222</p>",
+      "meta_keywords": "222",
+      "price": 100,
+      "status": 1,
+      "product_type": 1,
+      "native": 1,
+      "shared": 2,
+      "created_at": "2025-03-23 09:00:01",
+      "updated_at": "2025-03-23 15:55:56",
+      "platform_id": 1,
+      "oldproduct_id": 0,
+      "thumbnail": null
+    },
+    {
+      "product_id": 3,
+      "product_name": "1111",
+      "description": "<p>1111</p>",
+      "meta_keywords": "1111",
+      "price": 0,
+      "status": 1,
+      "product_type": 1,
+      "native": 1,
+      "shared": 2,
+      "created_at": "2025-03-23 08:47:59",
+      "updated_at": "2025-03-23 15:58:21",
+      "platform_id": 1,
+      "oldproduct_id": 0,
+      "thumbnail": null
+    },
+    {
+      "product_id": 2,
+      "product_name": "钱钱钱钱钱钱",
+      "description": "<p>11111111122</p>",
+      "meta_keywords": "1111",
+      "price": 100,
+      "status": 1,
+      "product_type": 1,
+      "native": 2,
+      "shared": 2,
+      "created_at": "2025-03-21 18:31:12",
+      "updated_at": "2025-03-23 15:58:04",
+      "platform_id": 1,
+      "oldproduct_id": 7,
+      "thumbnail": null
+    }
+  ],
+  "pagination": {
+    "current_page": 1,
+    "total_pages": 1,
+    "total_items": 6,
+    "categoryId": "2"
+  }
+};

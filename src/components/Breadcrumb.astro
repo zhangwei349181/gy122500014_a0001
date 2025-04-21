@@ -1,0 +1,30 @@
+---
+interface Props {
+    categoryPath: any[];
+    categoryId: string;
+}
+
+const { categoryPath, categoryId } = Astro.props;
+---
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-3 text-secondary justify-content-center">
+        <li class="breadcrumb-item">
+            <a href="/" class="link-dark">首页</a>
+        </li>
+        {categoryPath.map((cat, index) => {
+            const isLast = index === categoryPath.length - 1;
+            return (
+                <li class="breadcrumb-item">
+                    {isLast ? (
+                        <span aria-current="page">{cat.category_name}</span>
+                    ) : (
+                        <a href={`/productslist/${cat.category_id}-1`} class="link-dark">
+                            {cat.category_name}
+                        </a>
+                    )}
+                </li>
+            );
+        })}
+    </ol>
+</nav> 

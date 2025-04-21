@@ -1,0 +1,132 @@
+---
+title:11
+---
+  
+           <!--Arrival star-->
+           <section id="b-arrival" class="mb-5 pt-4 pb-4" data-gjs-draggable="false">
+            <div class="container" data-gjs-draggable="false">
+                <div class="mb-4 text-center" data-gjs-draggable="false">
+                    <h2 data-gjs-draggable="false">New Arrival</h2>
+                    <span class="d-block text-secondary fs-5 fw-light" data-gjs-draggable="false">Facer minimum adversarium ut mei</span>
+                </div>
+            </div>
+        </section>
+        <!--Arrival end-->
+
+<style>
+/* 添加必要的样式 */
+#b-arrival-carousel {
+    position: relative;
+}
+
+#b-arrival-carousel .carousel-control-prev,
+#b-arrival-carousel .carousel-control-next {
+    width: 40px;
+    height: 40px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#b-arrival-carousel:hover .carousel-control-prev,
+#b-arrival-carousel:hover .carousel-control-next {
+    opacity: 1;
+}
+
+#b-arrival-carousel .carousel-control-prev {
+    left: -20px;
+}
+
+#b-arrival-carousel .carousel-control-next {
+    right: -20px;
+}
+
+#b-arrival-carousel .carousel-indicators {
+    bottom: -40px;
+}
+
+#b-arrival-carousel .carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #ccc;
+    margin: 0 5px;
+}
+
+#b-arrival-carousel .carousel-indicators button.active {
+    background-color: #000;
+}
+
+/* 产品卡片样式 */
+.b-card-product {
+    transition: all 0.3s ease;
+    pointer-events: auto;
+}
+
+.b-card-product:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.b-card-img-box {
+    position: relative;
+}
+
+.b-card-img-link {
+    display: block;
+}
+
+.b-btn-add-cart {
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.b-card-product:hover .b-btn-add-cart {
+    transform: translateY(0);
+}
+
+.b-btn-like {
+    width: 40px;
+    height: 40px;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.b-btn-like:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.b-card-title {
+    margin-bottom: 10px;
+}
+
+.b-card-title a {
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.b-card-title a:hover {
+    color: #dc3545;
+}
+
+/* 确保轮播项内容可见 */
+#b-arrival-carousel .carousel-item {
+    display: block;
+    opacity: 0;
+    transition: opacity .15s linear;
+    pointer-events: none;
+}
+
+#b-arrival-carousel .carousel-item.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 确保卡片始终可以接收事件 */
+#b-arrival-carousel .carousel-item .b-card-product {
+    pointer-events: auto;
+}
+</style>

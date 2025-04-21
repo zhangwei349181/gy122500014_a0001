@@ -1,0 +1,141 @@
+<div class="col-12">
+    <div class="d-flex align-items-center justify-content-between gap-4 mb-4">
+        <!-- 左侧用户信息 -->
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-secondary">Welcome</span>
+            <h3 class="mb-0 h5" id="userName">Loading...</h3>
+        </div>
+
+        <!-- 移动端菜单按钮 -->
+        <div class="d-md-none">
+            <button class="btn btn-outline-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenuOffcanvas" aria-controls="userMenuOffcanvas">
+                <i class="bi bi-list me-1"></i>
+                <span>面板导航</span>
+            </button>
+        </div>
+
+        <!-- 桌面端菜单 -->
+        <div class="flex-grow-1 d-none d-md-block">
+            <div class="d-flex gap-3 flex-wrap justify-content-end">
+                <div class="mb-3">
+                    <a class="nav-link link-body-emphasis active" href="dashboard">
+                        <i class="bi bi-grid me-1"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                <div class="mb-3">
+                    <a class="nav-link link-body-emphasis" href="wishlist">
+                        <i class="bi bi-heart me-1"></i>
+                        <span>Wishlist</span>
+                    </a>
+                </div>
+                <div class="mb-3">
+                    <a class="nav-link link-body-emphasis" href="Retail_orders">
+                        <i class="bi bi-bag-check me-1"></i>
+                        <span>Retail orders</span>
+                    </a>
+                </div>
+                <div class="mb-3">
+                    <a class="nav-link link-body-emphasis" href="fundlog">
+                        <i class="bi bi-pin-map me-1"></i>
+                        <span>Fund log</span>
+                    </a>
+                </div>
+                <div class="mb-3">
+                    <a class="nav-link link-body-emphasis" href="setting.html">
+                        <i class="bi bi-gear me-1"></i>
+                        <span>Setting</span>
+                    </a>
+                </div>
+                <div class="mb-3">
+                    <a class="nav-link link-body-emphasis" href="change-password.html">
+                        <i class="bi bi-shield-lock me-1"></i>
+                        <span>Change Password</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 移动端侧边菜单 -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="userMenuOffcanvas" aria-labelledby="userMenuOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="userMenuOffcanvasLabel">用户菜单</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="nav flex-column">
+            <div class="nav-item mb-3">
+                <a class="nav-link link-body-emphasis active" href="dashboard">
+                    <i class="bi bi-grid me-1"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item mb-3">
+                <a class="nav-link link-body-emphasis" href="wishlist">
+                    <i class="bi bi-heart me-1"></i>
+                    <span>Wishlist</span>
+                </a>
+            </div>
+            <div class="nav-item mb-3">
+                <a class="nav-link link-body-emphasis" href="Retail_orders">
+                    <i class="bi bi-bag-check me-1"></i>
+                    <span>Retail orders</span>
+                </a>
+            </div>
+            <div class="nav-item mb-3">
+                <a class="nav-link link-body-emphasis" href="fundlog">
+                    <i class="bi bi-pin-map me-1"></i>
+                    <span>Fund log</span>
+                </a>
+            </div>
+            <div class="nav-item mb-3">
+                <a class="nav-link link-body-emphasis" href="setting.html">
+                    <i class="bi bi-gear me-1"></i>
+                    <span>Setting</span>
+                </a>
+            </div>
+            <div class="nav-item mb-3">
+                <a class="nav-link link-body-emphasis" href="change-password.html">
+                    <i class="bi bi-shield-lock me-1"></i>
+                    <span>Change Password</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  // 更新用户信息显示
+  function updateUserInfo() {
+    const userDataStr = localStorage.getItem('userData');
+    if (!userDataStr) return;
+
+    try {
+      const userData = JSON.parse(userDataStr);
+      
+      // 更新用户名
+      const userNameElement = document.getElementById('userName');
+      if (userNameElement && userData.username) {
+        userNameElement.textContent = userData.username;
+      }
+    } catch (error) {
+      console.error('解析用户数据失败:', error);
+    }
+  }
+
+  // 页面加载时更新用户信息
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateUserInfo);
+  } else {
+    updateUserInfo();
+  }
+
+  // 监听用户数据变化
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'userData') {
+      updateUserInfo();
+    }
+  });
+</script>

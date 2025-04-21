@@ -1,0 +1,176 @@
+---
+import Layout from '../../layouts/Layout.astro'; 
+import Header from '../../components/header02.astro';
+import Search from '../../components/search.astro';
+import Cart from '../../components/cart.astro';
+import Login from '../../components/login.astro';
+import Password from '../../components/password.astro';
+import Register from '../../components/register.astro';
+import Footer from '../../components/footer.astro';
+import type { Category } from '../../types/category';
+import { generateBreadcrumbHtml } from '../../templates/breadcrumbTemplate.js';
+import { generatePaginationHtml } from '../../templates/paginationTemplatepost.js';
+
+// 获取动态路由参数
+const { categoryId, pageId } = Astro.params;
+
+if (!categoryId || !pageId) {
+    return Astro.redirect('/404');
+}
+
+// 获取商品列表数据
+const pageData = await import(`../../data/articles/categories/${categoryId}/${pageId}.js`);
+
+// 获取分类数据
+const categoriesData = await import('../../data/articles/categories/categories.js');
+// 使用类型断言，先转换为 unknown，再转换为所需类型
+const categories = (categoriesData.default as any)[0].categories;
+
+// 查找分类路径的函数
+function findCategoryPath(categories: Category[], targetId: string): Category[] {
+    const path: Category[] = [];
+    
+    function findPath(cats: Category[], target: string, currentPath: Category[] = []): boolean {
+        for (const cat of cats) {
+            const newPath = [...currentPath, cat];
+            if (cat.category_id.toString() === target) {
+                path.push(...newPath);
+                return true;
+            }
+            if (cat.children) {
+                if (findPath(cat.children, target, newPath)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    findPath(categories, categoryId || '');
+    return path;
+}
+
+// 获取当前分类的完整路径
+const categoryPath = findCategoryPath(categories, categoryId);
+const currentCategory = categoryPath[categoryPath.length - 1];
+
+// 设置页面标题
+const pageTitle = currentCategory ? `${currentCategory.category_name} - GT6TRADE` : '商品列表 - GT6TRADE';
+
+// 准备面包屑数据
+const breadcrumbItems = categoryPath.map((cat, index) => ({
+    name: cat.category_name,
+    url: index === categoryPath.length - 1 ? '' : `/productslist/${cat.category_id}-1`,
+    isLast: index === categoryPath.length - 1
+}));
+
+// 调试输出
+console.log('面包屑数据:', breadcrumbItems);
+console.log('分类数据:', JSON.stringify(categoryPath, null, 2));
+
+// 生成面包屑HTML
+const breadcrumbHtml = generateBreadcrumbHtml(breadcrumbItems);
+
+// 调试输出
+console.log('生成的面包屑HTML:', breadcrumbHtml);
+
+// 生成分页HTML
+const paginationHtml = pageData.default.pagination.total_pages > 1 
+    ? generatePaginationHtml(categoryId, pageData.default.pagination)
+    : '';
+
+// 格式化日期函数
+function formatDate(dateString: string | null): string {
+    if (!dateString) return '未发布';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// 获取文章摘要
+function getArticleExcerpt(content: string, maxLength: number = 100): string {
+    // 移除HTML标签
+    const plainText = content.replace(/<[^>]*>/g, '');
+    // 截取指定长度
+    return plainText.length > maxLength ? plainText.substring(0, maxLength) + '...' : plainText;
+}
+---
+
+<Layout title={pageTitle}>
+    <Header/>
+    <Search/>
+    <Cart/>
+    <Login/>
+    <Password/>
+    <Register/>
+    <main>
+        <!-- Title -->
+        <section id="titile" class="page-title mb-5 bg-body-secondary" >
+            <div class="container">
+                <div class="text-center">
+                    <h1 class="title me-lg-auto mb-3">{currentCategory.category_name}</h1>
+                    <nav aria-label="breadcrumb" data-component="breadcrumb">
+                        <Fragment set:html={breadcrumbHtml} />
+                    </nav>
+                </div>
+            </div>
+        </section>
+        <!-- /Title -->
+
+        <!-- Today -->
+        <section id="today">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-xl-12">
+                        <h2 class="d-none">文章列表</h2>
+                        <div class="card border-light-subtle me-0 me-xl-4 rounded-0 mb-5">
+                            <div class="card-body p-4">
+                                <div class="row g-3">
+                                    {pageData.default.articles.map((article: any) => (
+                                        <div class="col-12 col-md-4">
+                                            <!-- Post -->
+                                            <div class="card card-post border-0 m-2">
+                                                <small class="d-inline-block fw-light mb-1 bg-primary bg-opacity-75 text-white pt-1 pb-1 ps-2 pe-2 rounded-1 text-uppercase position-absolute mt-4 ms-4 z-1">
+                                                    {article.tag_ids && article.tag_ids.length > 0 ? '已标记' : '未标记'}
+                                                </small>
+                                                <a href={`/post/${article.article_id}`} class="card-img-link overflow-hidden position-relative">
+                                                    <img 
+                                                        src={article.image_urls && article.image_urls.length > 0 ? article.image_urls[0] : 'assets/img/blog/b7.jpg'} 
+                                                        class="card-img-top rounded-0 w-100" 
+                                                        alt={article.title}
+                                                    >
+                                                </a>
+                                                <div class="card-body ps-0 pe-0 border-bottom">
+                                                    <h3 class="card-title h5 mb-3">
+                                                        <a href={`/post/${article.article_id}`} class="link-body-emphasis link-hover">
+                                                            {article.title}
+                                                        </a>
+                                                    </h3>
+                                                    <small class="d-flex align-items-center fw-light mb-3">
+                                                        <span class="me-3">发布时间：{formatDate(article.published_at || article.created_at)}</span>
+                                                    </small>
+                                                    <p class="card-text">{getArticleExcerpt(article.content)}</p>
+                                                </div>
+                                            </div>
+                                            <!-- /Post -->
+                                        </div>
+                                    ))}
+                                </div>
+                                <!-- 分页 -->
+                                <Fragment set:html={paginationHtml} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /Today -->
+
+    </main>
+    <Footer/>
+</Layout>

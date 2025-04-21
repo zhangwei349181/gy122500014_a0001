@@ -1,0 +1,213 @@
+---
+title:11
+---
+    
+    <!--Cart star -->
+    <div class="offcanvas offcanvas-end border-start-0 p-3" tabindex="-1" id="ocCart" aria-labelledby="h5Cart">
+        <div class="offcanvas-header">
+            <h3 class="offcanvas-title" id="h5Cart">购物车</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="mb-4" id="cart-items-container">
+                <!-- 购物车商品将通过 JavaScript 动态加载 -->
+            </div>
+            <div class="mb-4">
+                <div class="text-end mb-2">
+                    <span class="fw-semibold h6">商品总额:</span>
+                    <span class="h6"><sup>¥</sup><span id="cart-subtotal">0.00</span></span>
+                </div>
+                <div class="text-end mb-2">
+                    <span class="fw-semibold h6">运费总额:</span>
+                    <span class="h6"><sup>¥</sup><span id="cart-shipping">0.00</span></span>
+                </div>
+                <div class="text-end mb-2">
+                    <span class="fw-semibold h6">税费总额:</span>
+                    <span class="h6"><sup>¥</sup><span id="cart-tax">0.00</span></span>
+                </div>
+                <div class="text-end mb-2">
+                    <span class="fw-semibold h6">总计 (<span id="cart-total-items">0</span> 件商品):</span>
+                    <span class="h4 text-danger fw-bolder"><sup>¥</sup><span id="cart-total-price">0.00</span></span>
+                </div>
+                <p class="text-secondary text-end fsm-3">
+                    <em>* 所有税费和运费已包含</em>
+                </p>
+            </div>
+            <div class="row g-3">
+                <div class="col-6">
+                    <a href="/shop/shopping-cart" class="btn btn-lg fs-6 btn-outline-dark w-100 rounded-0">
+                        <i class="bi bi-bag"></i>
+                        <span>查看购物车</span>
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="/shop/payoders" class="btn btn-lg fs-6 btn-dark w-100 rounded-0">
+                        <i class="bi bi-credit-card"></i>
+                        <span>去结算</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Cart end-->
+
+    <script>
+        // 定义购物车商品类型
+        interface CartItem {
+            product_id: string;
+            product_name: string;
+            product_image: string;
+            sku: string;
+            price: number;
+            quantity: number;
+            shipping_fee: number;
+            tax_fee: number;
+            [key: string]: any;
+        }
+
+        // 加载购物车数据
+        function loadCartItems() {
+            try {
+                const cartItemsContainer = document.getElementById('cart-items-container');
+                const cartTotalItems = document.getElementById('cart-total-items');
+                const cartTotalPrice = document.getElementById('cart-total-price');
+                const cartSubtotal = document.getElementById('cart-subtotal');
+                const cartShipping = document.getElementById('cart-shipping');
+                const cartTax = document.getElementById('cart-tax');
+                
+                if (!cartItemsContainer || !cartTotalItems || !cartTotalPrice || 
+                    !cartSubtotal || !cartShipping || !cartTax) return;
+                
+                // 从本地存储获取购物车数据
+                const cartData = localStorage.getItem('cart');
+                if (!cartData) {
+                    cartItemsContainer.innerHTML = '<p class="text-center">购物车是空的</p>';
+                    cartTotalItems.textContent = '0';
+                    cartTotalPrice.textContent = '0.00';
+                    cartSubtotal.textContent = '0.00';
+                    cartShipping.textContent = '0.00';
+                    cartTax.textContent = '0.00';
+                    return;
+                }
+                
+                const cartItems = JSON.parse(cartData) as CartItem[];
+                if (cartItems.length === 0) {
+                    cartItemsContainer.innerHTML = '<p class="text-center">购物车是空的</p>';
+                    cartTotalItems.textContent = '0';
+                    cartTotalPrice.textContent = '0.00';
+                    cartSubtotal.textContent = '0.00';
+                    cartShipping.textContent = '0.00';
+                    cartTax.textContent = '0.00';
+                    return;
+                }
+                
+                // 清空容器
+                cartItemsContainer.innerHTML = '';
+                
+                // 计算总数量和各项费用
+                let totalItems = 0;
+                let subtotal = 0;
+                let totalShipping = 0;
+                let totalTax = 0;
+                
+                // 添加每个商品到容器
+                cartItems.forEach((item, index) => {
+                    totalItems += item.quantity;
+                    subtotal += item.price * item.quantity;
+                    totalShipping += item.shipping_fee;
+                    totalTax += item.tax_fee;
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'link-body-emphasis link-hover d-flex align-items-center mb-4';
+                    itemElement.innerHTML = `
+                        <a href="/shop/product/${item.product_id}" class="flex-shrink-0">
+                            <img src="${item.product_image}" width="100" alt="${item.product_name}">
+                        </a>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="fw-medium">
+                                <a href="/shop/product/${item.product_id}" class="link-body-emphasis">
+                                    ${item.product_name}
+                                </a>
+                            </h6>
+                            <small class="text-secondary d-block mb-1">
+                                <span>价格: </span>
+                                <strong>¥${item.price.toFixed(2)}</strong>
+                                <strong>(${item.quantity})</strong>
+                            </small>
+                            <small class="text-secondary d-block mb-1">
+                                <span>SKU: </span>
+                                <strong>${item.sku}</strong>
+                            </small>
+                            <small class="text-secondary d-block mb-1">
+                                <span>运费: </span>
+                                <strong>¥${item.shipping_fee.toFixed(2)}</strong>
+                            </small>
+                            <small class="text-secondary d-block mb-1">
+                                <span>税费: </span>
+                                <strong>¥${item.tax_fee.toFixed(2)}</strong>
+                            </small>
+                            <a href="#" class="d-flex align-items-center link-danger small remove-item" data-index="${index}">
+                                <i class="bi bi-x"></i><span>删除</span>
+                            </a>
+                        </div>
+                    `;
+                    
+                    cartItemsContainer.appendChild(itemElement);
+                });
+                
+                // 更新所有金额显示
+                cartTotalItems.textContent = totalItems.toString();
+                cartSubtotal.textContent = subtotal.toFixed(2);
+                cartShipping.textContent = totalShipping.toFixed(2);
+                cartTax.textContent = totalTax.toFixed(2);
+                cartTotalPrice.textContent = (subtotal + totalShipping + totalTax).toFixed(2);
+                
+                // 绑定删除按钮事件
+                document.querySelectorAll('.remove-item').forEach(btn => {
+                    btn.addEventListener('click', function(this: HTMLElement, e) {
+                        e.preventDefault();
+                        const index = parseInt(this.getAttribute('data-index') || '0');
+                        removeFromCart(index);
+                    });
+                });
+                
+            } catch (error) {
+                console.error('加载购物车数据失败:', error);
+                const cartItemsContainer = document.getElementById('cart-items-container');
+                if (cartItemsContainer) {
+                    cartItemsContainer.innerHTML = '<p class="text-center text-danger">加载购物车数据失败</p>';
+                }
+            }
+        }
+        
+        // 删除购物车商品
+        function removeFromCart(index: number) {
+            try {
+                const cartItems = JSON.parse(localStorage.getItem('cart') || '[]') as CartItem[];
+                if (index >= 0 && index < cartItems.length) {
+                    cartItems.splice(index, 1);
+                    localStorage.setItem('cart', JSON.stringify(cartItems));
+                    loadCartItems(); // 重新加载购物车
+                    
+                    // 触发自定义事件，通知其他组件购物车已更新
+                    window.dispatchEvent(new CustomEvent('cartUpdated'));
+                }
+            } catch (error) {
+                console.error('删除商品失败:', error);
+                alert('删除商品失败，请重试');
+            }
+        }
+        
+        // 页面加载时初始化购物车
+        document.addEventListener('DOMContentLoaded', loadCartItems);
+        
+        // 监听购物车更新事件
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'cart') {
+                loadCartItems();
+            }
+        });
+        
+        // 监听自定义购物车更新事件
+        window.addEventListener('cartUpdated', loadCartItems);
+    </script>

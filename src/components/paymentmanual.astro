@@ -1,0 +1,508 @@
+---
+interface Props {
+    order_id?: number;
+    order_type?: string;
+    amount?: number;
+}
+
+interface UploadResponse {
+    url: string;
+    success: boolean;
+}
+
+interface PaymentResponse {
+    success: boolean;
+    message?: string;
+}
+
+interface PaymentRecord {
+    id: number;
+    user_id: number;
+    type_id: number;
+    order_type: string;
+    order_id: number;
+    amount: number;
+    description: string;
+    img: string;
+    status: number;
+    created_at: string;
+    type_name: string;
+}
+
+interface PaymentRecordResponse {
+    success: boolean;
+    records: PaymentRecord[];
+}
+
+const { order_id, order_type, amount } = Astro.props;
+---
+
+<!-- 手动支付弹窗 -->
+<div class="modal fade" id="paymentManualModal" tabindex="-1" aria-labelledby="paymentManualModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentManualModalLabel">完成手动支付</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <h6>支付信息</h6>
+                    <p class="mb-1">订单号：<span id="manualOrderId"></span></p>
+                    <p class="mb-1">支付金额：<span id="manualAmount" class="text-primary fw-bold"></span></p>
+                </div>
+
+                <div class="mb-4">
+                    <h6>支付方式</h6>
+                    <div id="paymentTypeList" class="list-group">
+                        <!-- 支付方式列表将通过 JavaScript 动态添加 -->
+                        <div class="text-center py-3">加载中...</div>
+                    </div>
+                </div>
+
+                <form id="paymentManualForm" class="d-none">
+                    <div class="mb-3">
+                        <label for="paymentDescription" class="form-label">支付说明</label>
+                        <textarea class="form-control" id="paymentDescription" rows="3" placeholder="请输入支付说明，如：转账时间、转账方式等"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="paymentImage" class="form-label">支付凭证</label>
+                        <input type="file" class="form-control" id="paymentImage" accept="image/*">
+                        <div class="form-text">请上传支付凭证截图（支持jpg、png格式）</div>
+                    </div>
+
+                    <div class="alert alert-danger d-none" id="paymentError"></div>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">提交支付</button>
+                    </div>
+                </form>
+
+                <div class="mt-3">
+                    <button type="button" class="btn btn-link p-0" id="viewPaymentRecords">
+                        查看该订单的打款记录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 手动打款记录列表弹窗 -->
+<div class="modal fade" id="paymentRecordModal" tabindex="-1" aria-labelledby="paymentRecordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentRecordModalLabel">手动打款记录</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>订单号</th>
+                                <th>支付方式</th>
+                                <th>金额</th>
+                                <th>提交时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentRecordList">
+                            <tr>
+                                <td colspan="6" class="text-center">加载中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 打款记录详情弹窗 -->
+<div class="modal fade" id="paymentRecordDetailModal" tabindex="-1" aria-labelledby="paymentRecordDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentRecordDetailModalLabel">打款记录详情</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h6>订单信息</h6>
+                    <p class="mb-1">订单号：<span id="detailOrderId"></span></p>
+                    <p class="mb-1">订单类型：<span id="detailOrderType"></span></p>
+                </div>
+
+                <div class="mb-3">
+                    <h6>支付信息</h6>
+                    <p class="mb-1">支付方式：<span id="detailPaymentType"></span></p>
+                </div>
+
+                <div class="mb-3">
+                    <h6>支付说明</h6>
+                    <p id="detailDescription" class="mb-1"></p>
+                </div>
+
+                <div class="mb-3">
+                    <h6>支付凭证</h6>
+                    <img id="detailImage" class="img-fluid rounded" alt="支付凭证">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+interface PaymentManual {
+    id: number;
+    name: string;
+    description: string;
+}
+
+interface PaymentManualResponse {
+    success: boolean;
+    manuals: PaymentManual[];
+}
+
+let selectedTypeId: number | null = null;
+let currentOrderId: number | null = null;
+
+// 获取手动支付方式列表
+async function fetchPaymentManuals() {
+    try {
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        const platform_id = userData.platform_id || 0;
+
+        const response = await fetch(`https://cyadmin.shopaeo.cn/api/paymentmanual/list?platform_id=${platform_id}`);
+        const data = await response.json() as PaymentManualResponse;
+
+        if (response.ok && data.success) {
+            updatePaymentTypeList(data.manuals);
+        } else {
+            throw new Error('获取支付方式失败');
+        }
+    } catch (error) {
+        console.error('获取支付方式列表失败:', error);
+        showError('获取支付方式列表失败，请刷新重试');
+    }
+}
+
+// 更新支付方式列表
+function updatePaymentTypeList(manuals: PaymentManual[]) {
+    const listEl = document.getElementById('paymentTypeList');
+    if (!listEl) return;
+
+    if (manuals.length === 0) {
+        listEl.innerHTML = '<div class="text-center py-3">暂无可用的支付方式</div>';
+        return;
+    }
+
+    listEl.innerHTML = manuals.map(manual => `
+        <button type="button" class="list-group-item list-group-item-action payment-type-item" data-type-id="${manual.id}">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-1">${manual.name}</h6>
+            </div>
+            <p class="mb-1 text-muted small">${manual.description || ''}</p>
+        </button>
+    `).join('');
+
+    // 添加点击事件
+    document.querySelectorAll('.payment-type-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.payment-type-item').forEach(i => 
+                i.classList.remove('active'));
+            item.classList.add('active');
+            selectedTypeId = parseInt((item as HTMLElement).dataset.typeId || '0');
+            document.getElementById('paymentManualForm')?.classList.remove('d-none');
+        });
+    });
+}
+
+// 显示错误信息
+function showError(message: string) {
+    const errorEl = document.getElementById('paymentError');
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.remove('d-none');
+    }
+}
+
+// 隐藏错误信息
+function hideError() {
+    const errorEl = document.getElementById('paymentError');
+    if (errorEl) {
+        errorEl.classList.add('d-none');
+    }
+}
+
+// 初始化表单处理
+function initForm() {
+    const form = document.getElementById('paymentManualForm') as HTMLFormElement;
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideError();
+
+        if (!selectedTypeId) {
+            showError('请选择支付方式');
+            return;
+        }
+
+        const description = (document.getElementById('paymentDescription') as HTMLTextAreaElement).value;
+        const imageFile = (document.getElementById('paymentImage') as HTMLInputElement).files?.[0];
+
+        if (!imageFile) {
+            showError('请上传支付凭证');
+            return;
+        }
+
+        try {
+            // 先上传图片
+            const formData = new FormData();
+            formData.append('file', imageFile);
+            
+            const uploadResponse = await fetch('https://houd001.pages.dev/user/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const uploadResult = await uploadResponse.json() as UploadResponse;
+            if (!uploadResponse.ok || !uploadResult.url) {
+                throw new Error('上传支付凭证失败');
+            }
+
+            // 提交支付记录
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const orderIdEl = document.getElementById('manualOrderId');
+            const amountEl = document.getElementById('manualAmount');
+            
+            const paymentData = {
+                user_id: userData.user_id,
+                type_id: selectedTypeId,
+                order_type: orderIdEl?.dataset.orderType,
+                order_id: parseInt(orderIdEl?.dataset.orderId || '0'),
+                amount: parseFloat(amountEl?.dataset.amount || '0'),
+                description: description,
+                img: uploadResult.url,
+                platform_id: userData.platform_id || 0
+            };
+
+            const response = await fetch('https://cyadmin.shopaeo.cn/api/paymentmanual/create', {
+                method: 'POST',
+                body: JSON.stringify(paymentData)
+            });
+
+            const result = await response.json() as PaymentResponse;
+            if (response.ok && result.success) {
+                // 关闭弹窗并刷新订单列表
+                const modalEl = document.getElementById('paymentManualModal');
+                if (modalEl) {
+                    const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
+                    modal?.hide();
+                }
+                // 触发自定义事件通知订单列表刷新
+                document.dispatchEvent(new CustomEvent('paymentSubmitted'));
+            } else {
+                throw new Error(result.message || '提交支付记录失败');
+            }
+        } catch (error) {
+            console.error('提交支付记录失败:', error);
+            showError((error as Error).message || '提交失败，请重试');
+        }
+    });
+}
+
+// 获取手动打款记录列表
+async function fetchPaymentRecords(orderId: number) {
+    try {
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        const platform_id = userData.platform_id || 0;
+
+        const response = await fetch(`https://cyadmin.shopaeo.cn/api/paymentmanual/records?order_id=${orderId}&platform_id=${platform_id}`);
+        const data = await response.json() as PaymentRecordResponse;
+
+        if (response.ok && data.success) {
+            updatePaymentRecordList(data.records);
+        } else {
+            throw new Error('获取打款记录失败');
+        }
+    } catch (error) {
+        console.error('获取打款记录列表失败:', error);
+        const listEl = document.getElementById('paymentRecordList');
+        if (listEl) {
+            listEl.innerHTML = '<tr><td colspan="6" class="text-center text-danger">获取记录失败，请刷新重试</td></tr>';
+        }
+    }
+}
+
+// 更新打款记录列表
+function updatePaymentRecordList(records: PaymentRecord[]) {
+    const listEl = document.getElementById('paymentRecordList');
+    if (!listEl) return;
+
+    if (records.length === 0) {
+        listEl.innerHTML = '<tr><td colspan="6" class="text-center">暂无打款记录</td></tr>';
+        return;
+    }
+
+    listEl.innerHTML = records.map(record => `
+        <tr>
+            <td>${record.order_id}</td>
+            <td>${record.type_name}</td>
+            <td>$${Number(record.amount).toFixed(2)}</td>
+            <td>${new Date(record.created_at).toLocaleString()}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-primary view-detail-btn"
+                    data-record='${JSON.stringify(record)}'>
+                    查看详情
+                </button>
+            </td>
+        </tr>
+    `).join('');
+
+    // 添加查看详情按钮点击事件
+    document.querySelectorAll('.view-detail-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const record = JSON.parse((btn as HTMLElement).dataset.record || '{}');
+            showPaymentRecordDetail(record);
+        });
+    });
+}
+
+// 显示打款记录详情
+function showPaymentRecordDetail(record: PaymentRecord) {
+    // 关闭记录列表弹窗
+    const recordModal = document.getElementById('paymentRecordModal');
+    if (recordModal) {
+        const modal = (window as any).bootstrap.Modal.getInstance(recordModal);
+        modal?.hide();
+    }
+
+    // 显示详情弹窗
+    const detailModal = new (window as any).bootstrap.Modal(document.getElementById('paymentRecordDetailModal'));
+    detailModal.show();
+
+    // 等待弹窗完全显示后再更新内容
+    setTimeout(() => {
+        // 填充详情数据
+        console.log('记录数据:', record);
+        
+        // 使用 innerHTML 设置内容
+        const elements = {
+            detailOrderId: record.order_id.toString(),
+            detailOrderType: record.order_type,
+            detailPaymentType: record.type_name,
+            detailDescription: record.description || '无'
+        };
+
+        // 遍历并设置每个元素的值
+        Object.entries(elements).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.innerHTML = value;
+                console.log(`设置 ${id}:`, value); // 添加调试日志
+            } else {
+                console.log(`未找到元素 ${id}`); // 添加调试日志
+            }
+        });
+
+        // 设置图片
+        const imgElement = document.getElementById('detailImage') as HTMLImageElement;
+        if (imgElement) {
+            imgElement.src = record.img;
+        }
+    }, 100);
+}
+
+// 初始化弹窗
+function initModal() {
+    const modal = document.getElementById('paymentManualModal');
+    if (!modal) return;
+
+    modal.addEventListener('show.bs.modal', (event) => {
+        const button = (event as any).relatedTarget;
+        const orderId = button.getAttribute('data-order-id');
+        const orderType = button.getAttribute('data-order-type');
+        const amount = button.getAttribute('data-amount');
+
+        const orderIdEl = document.getElementById('manualOrderId');
+        const amountEl = document.getElementById('manualAmount');
+        
+        if (orderIdEl) {
+            orderIdEl.textContent = orderId;
+            orderIdEl.dataset.orderId = orderId;
+            orderIdEl.dataset.orderType = orderType;
+        }
+        
+        if (amountEl) {
+            amountEl.textContent = `$${parseFloat(amount).toFixed(2)}`;
+            amountEl.dataset.amount = amount;
+        }
+
+        // 保存当前订单ID
+        currentOrderId = parseInt(orderId);
+
+        // 重置表单
+        selectedTypeId = null;
+        document.querySelectorAll('.payment-type-item').forEach(i => 
+            i.classList.remove('active'));
+        (document.getElementById('paymentManualForm') as HTMLFormElement)?.reset();
+        document.getElementById('paymentManualForm')?.classList.add('d-none');
+        hideError();
+
+        // 获取支付方式列表
+        fetchPaymentManuals();
+    });
+}
+
+// 初始化记录列表弹窗
+function initRecordModal() {
+    const modal = document.getElementById('paymentRecordModal');
+    if (!modal) return;
+
+    modal.addEventListener('show.bs.modal', () => {
+        if (currentOrderId) {
+            fetchPaymentRecords(currentOrderId);
+        }
+    });
+}
+
+// 初始化查看记录按钮
+function initViewRecordsButton() {
+    const viewRecordsBtn = document.getElementById('viewPaymentRecords');
+    if (!viewRecordsBtn) return;
+
+    viewRecordsBtn.addEventListener('click', () => {
+        // 关闭支付弹窗
+        const paymentModal = document.getElementById('paymentManualModal');
+        if (paymentModal) {
+            const modal = (window as any).bootstrap.Modal.getInstance(paymentModal);
+            modal?.hide();
+        }
+
+        // 打开记录列表弹窗
+        const recordModal = new (window as any).bootstrap.Modal(document.getElementById('paymentRecordModal'));
+        recordModal.show();
+    });
+}
+
+// 初始化
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initModal();
+        initForm();
+        initRecordModal();
+        initViewRecordsButton();
+    });
+} else {
+    initModal();
+    initForm();
+    initRecordModal();
+    initViewRecordsButton();
+}
+</script>

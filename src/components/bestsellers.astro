@@ -1,0 +1,89 @@
+---
+import { generateProductsGridHtml } from '../templates/productGridTemplate4l.js';
+
+const pageData1 = await import(`../data/products/tags/11/1.js`);
+const pageData2 = await import(`../data/products/tags/12/1.js`);
+const pageData3 = await import(`../data/products/tags/13/1.js`);
+const pageData4 = await import(`../data/products/tags/14/1.js`);
+
+const firstFourProducts = pageData1.default.products.slice(0, 4);
+const secondFourProducts = pageData2.default.products.slice(0, 4);
+const thirdFourProducts = pageData3.default.products.slice(0, 4);
+const fourthFourProducts = pageData4.default.products.slice(0, 4);
+
+const firstFourProductsHtml = generateProductsGridHtml(firstFourProducts);
+const secondFourProductsHtml = generateProductsGridHtml(secondFourProducts);
+const thirdFourProductsHtml = generateProductsGridHtml(thirdFourProducts);
+const fourthFourProductsHtml = generateProductsGridHtml(fourthFourProducts);
+---
+  
+            <!--Bestsellers star-->
+            <section id="bestsellers" class="pt-4 mb-5 pb-4">
+                <div class="container">
+                    <div class="mb-4 text-center" >
+                        <h2>Bestsellers</h2>
+                        <span class="d-block text-secondary fs-5 fw-light">Facer minimum adversarium ut mei</span>
+                    </div>
+                    <!-- Tab Navs -->
+                    <ul class="nav small justify-content-center mb-4 fw-medium" id="myTab" role="tablist" >
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-uppercase active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">
+                                Women
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-uppercase" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">
+                                Men</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-uppercase" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">
+                                Kids</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-uppercase" id="disabled-tab" data-bs-toggle="tab" data-bs-target="#disabled-tab-pane" type="button" role="tab" aria-controls="disabled-tab-pane" aria-selected="false">
+                                Accessories</button>
+                        </li>
+                    </ul>
+                    <!-- Tab Navs -->
+                    <!-- Tab content-->
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+                            <div class="row g-4" set:html={firstFourProductsHtml} />
+                            <div class="text-center pt-4">
+                                <a href="/productslist/5-1" class="fw-medium link-body-emphasis">
+                                    <span>View all</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                            <div class="row g-4" set:html={secondFourProductsHtml} />
+                            <div class="text-center pt-4">
+                                <a href="/productslist/13-1" class="fw-medium link-body-emphasis">
+                                    <span>View all</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
+                            <div class="row g-4" set:html={thirdFourProductsHtml} />
+                            <div class="text-center pt-4">
+                                <a href="/productslist/15-1" class="fw-medium link-body-emphasis">
+                                    <span>View all</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="disabled-tab-pane" role="tabpanel" aria-labelledby="disabled-tab" tabindex="0">
+                            <div class="row g-4" set:html={fourthFourProductsHtml} />
+                            <div class="text-center pt-4">
+                                <a href="/productslist/8-1" class="fw-medium link-body-emphasis">
+                                    <span>View all</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!--Bestsellers end-->

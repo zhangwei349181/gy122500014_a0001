@@ -1,0 +1,170 @@
+---
+import { generateProductsGridHtml } from '../templates/productGridTemplate4l.js';
+// 获取商品列表数据
+const pageData = await import(`../data/products/tags/11/1.js`);
+
+// 将产品数据分成两组：前4条和第5-8条
+const firstFourProducts = pageData.default.products.slice(0, 4);
+const nextFourProducts = pageData.default.products.slice(4, 8);
+
+// 生成两组产品的HTML
+const firstFourProductsHtml = generateProductsGridHtml(firstFourProducts);
+const nextFourProductsHtml = generateProductsGridHtml(nextFourProducts);
+---
+  
+           <!--Arrival star-->
+           <section id="b-arrival" class="mb-5 pt-4 pb-4">
+            <div class="container">
+                <div class="mb-4 text-center" >
+                    <h2>超值热销</h2>
+                    <span class="d-block text-secondary fs-5 fw-light">Facer minimum adversarium ut mei</span>
+                </div>
+                <div id="b-arrival-carousel" class="carousel carousel-dark slide">
+                    <!-- 添加指示器 -->
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#b-arrival-carousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#b-arrival-carousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                    </div>
+                    
+                    <div class="carousel-inner">
+                        <!-- 第一页：前4条产品 -->
+                        <div class="carousel-item active">
+                            <div class="row g-4" set:html={firstFourProductsHtml} />
+                        </div>
+                        <!-- 第二页：第5-8条产品 -->
+                        <div class="carousel-item">
+                            <div class="row g-4" set:html={nextFourProductsHtml} />
+                        </div>
+                    </div>
+                    
+                    <!-- 控制按钮 -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#b-arrival-carousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#b-arrival-carousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!--Arrival end-->
+
+<style>
+/* 添加必要的样式 */
+#b-arrival-carousel {
+    position: relative;
+}
+
+#b-arrival-carousel .carousel-control-prev,
+#b-arrival-carousel .carousel-control-next {
+    width: 40px;
+    height: 40px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#b-arrival-carousel:hover .carousel-control-prev,
+#b-arrival-carousel:hover .carousel-control-next {
+    opacity: 1;
+}
+
+#b-arrival-carousel .carousel-control-prev {
+    left: -20px;
+}
+
+#b-arrival-carousel .carousel-control-next {
+    right: -20px;
+}
+
+#b-arrival-carousel .carousel-indicators {
+    bottom: -40px;
+}
+
+#b-arrival-carousel .carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #ccc;
+    margin: 0 5px;
+}
+
+#b-arrival-carousel .carousel-indicators button.active {
+    background-color: #000;
+}
+
+/* 产品卡片样式 */
+.b-card-product {
+    transition: all 0.3s ease;
+    pointer-events: auto;
+}
+
+.b-card-product:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.b-card-img-box {
+    position: relative;
+}
+
+.b-card-img-link {
+    display: block;
+}
+
+.b-btn-add-cart {
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.b-card-product:hover .b-btn-add-cart {
+    transform: translateY(0);
+}
+
+.b-btn-like {
+    width: 40px;
+    height: 40px;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.b-btn-like:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.b-card-title {
+    margin-bottom: 10px;
+}
+
+.b-card-title a {
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.b-card-title a:hover {
+    color: #dc3545;
+}
+
+/* 确保轮播项内容可见 */
+#b-arrival-carousel .carousel-item {
+    display: block;
+    opacity: 0;
+    transition: opacity .15s linear;
+    pointer-events: none;
+}
+
+#b-arrival-carousel .carousel-item.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 确保卡片始终可以接收事件 */
+#b-arrival-carousel .carousel-item .b-card-product {
+    pointer-events: auto;
+}
+</style>

@@ -1,0 +1,529 @@
+---
+import Layout from '../../layouts/Layout.astro'; 
+import Header from '../../components/header02.astro';
+import Search from '../../components/search.astro';
+import Cart from '../../components/cart.astro';
+import Login from '../../components/login.astro';
+import Password from '../../components/password.astro';
+import Register from '../../components/register.astro';
+import Footer from '../../components/footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+
+// 获取动态路由参数
+const { categoryId, pageId } = Astro.params;
+
+if (!categoryId || !pageId) {
+    return Astro.redirect('/404');
+}
+
+// 获取商品列表数据
+const pageData = await import(`../../data/products/categories/${categoryId}/${pageId}.js`);
+
+// 获取分类信息
+const categories = await import('../../data/products/categories/categories.js');
+
+// 查找分类路径的函数
+function findCategoryPath(categories: any[], targetId: string): any[] {
+    const path: any[] = [];
+    
+    function findPath(cats: any[], target: string, currentPath: any[] = []): boolean {
+        for (const cat of cats) {
+            const newPath = [...currentPath, cat];
+            if (cat.category_id.toString() === target) {
+                path.push(...newPath);
+                return true;
+            }
+            if (cat.children) {
+                if (findPath(cat.children, target, newPath)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    findPath(categories.default, targetId);
+    return path;
+}
+
+// 获取当前分类的完整路径
+const categoryPath = findCategoryPath(categories, categoryId);
+const currentCategory = categoryPath[categoryPath.length - 1];
+
+// 设置页面标题
+const pageTitle = currentCategory ? `${currentCategory.category_name} - GT6TRADE` : '商品列表 - GT6TRADE';
+
+---
+
+<Layout title={pageTitle}>
+    <Header/>
+    <Search/>
+    <Cart/>
+    <Login/>
+    <Password/>
+    <Register/>
+
+    <!-- 商品列表 -->
+    <main>
+        <!-- Title -->
+        <section id="titile" class="page-title mb-5 bg-body-secondary" data-cue="fadeIn">
+            <div class="container">
+                <div class="text-center">
+                    <h1 class="title me-lg-auto mb-3">{currentCategory?.category_name || '商品列表'}</h1>
+                    <Breadcrumb categoryPath={categoryPath} categoryId={categoryId} />
+                </div>
+            </div>
+        </section>
+        <!-- /Title -->
+        
+        <!-- Products -->
+        <section id="product" class="mb-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-xl-3 col-lg-4">
+                        <div class="pe-0 pe-lg-3" data-cue="fadeIn">
+                            <!-- Filter -->
+                            <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="ocFilter" aria-labelledby="ocFilterLabel">
+                                <div class="offcanvas-header">
+                                    <h3 class="offcanvas-title" id="ocFilterLabel">Filter products</h3>
+                                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#ocFilter" aria-label="Close"></button>
+                                </div>
+                                <div class="offcanvas-body">
+                                    <form class="w-100 mb-4 product-filter">
+                                        <div class="accordion" id="acdFilter">
+                                            <!-- Categories -->
+                                            <div class="accordion-item rounded-0">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button bg-transparent rounded-0 shadow-none text-body-emphasis" type="button" data-bs-toggle="collapse" data-bs-target="#filterCaterory" aria-expanded="true" aria-controls="filterCaterory">
+                                                        <span class="fs-5 fw-medium">Categories</span>
+                                                    </button>
+                                                </h2>
+                                                <div id="filterCaterory" class="accordion-collapse collapse show">
+                                                    <div class="accordion-body pt-0">
+                                                        <ul class="nav flex-column">
+                                                            {categories.default.map(cat => {
+                                                                const isActive = cat.category_id.toString() === categoryId;
+                                                                return (
+                                                                    <li class="nav-item">
+                                                                        <a class={`nav-link pt-1 pb-1 ps-0 pe-0 ${isActive ? 'link-primary' : 'link-body-emphasis'} fw-medium`}
+                                                                           href={`/productslist/${cat.category_id}-1`}>
+                                                                            {cat.category_name}
+                                                                        </a>
+                                                                        {cat.children && cat.children.length > 0 && (
+                                                                            <ul class="nav flex-column ms-4">
+                                                                                {cat.children.map(child => {
+                                                                                    const isChildActive = child.category_id.toString() === categoryId;
+                                                                                    return (
+                                                                                        <li class="nav-item">
+                                                                                            <a class={`nav-link p-0 ${isChildActive ? 'link-primary' : 'link-body-emphasis'}`}
+                                                                                               href={`/productslist/${child.category_id}-1`}>
+                                                                                                {child.category_name}
+                                                                                            </a>
+                                                                                            {child.children && child.children.length > 0 && (
+                                                                                                <ul class="nav flex-column ms-4">
+                                                                                                    {child.children.map(grandChild => {
+                                                                                                        const isGrandChildActive = grandChild.category_id.toString() === categoryId;
+                                                                                                        return (
+                                                                                                            <li class="nav-item">
+                                                                                                                <a class={`nav-link p-0 ${isGrandChildActive ? 'link-primary' : 'link-body-emphasis'}`}
+                                                                                                                   href={`/productslist/${grandChild.category_id}-1`}>
+                                                                                                                    {grandChild.category_name}
+                                                                                                                </a>
+                                                                                                            </li>
+                                                                                                        );
+                                                                                                    })}
+                                                                                                </ul>
+                                                                                            )}
+                                                                                        </li>
+                                                                                    );
+                                                                                })}
+                                                                            </ul>
+                                                                        )}
+                                                                    </li>
+                                                                );
+                                                            })}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div> 
+                                            <!-- /Categories
+                                            <!-- Price -->
+                                            <!-- <div class="accordion-item">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button bg-transparent rounded-0 shadow-none text-body-emphasis collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filterPrice" aria-expanded="false" aria-controls="filterPrice">
+                                                        <span class="fs-5 fw-medium">Price</span>
+                                                    </button>
+                                                </h2>
+                                                <div id="filterPrice" class="accordion-collapse collapse">
+                                                    <div class="accordion-body">
+                                                        <div class="price-range" data-range-price="">
+                                                            <div class="row price-input mb-3">
+                                                                <div class="col-6">
+                                                                    <label for="txtMinPrice" class="form-label">Min price</label>
+                                                                    <div class="input-group mb-6">
+                                                                        <span class="input-group-text rounded-0">$</span>
+                                                                        <input type="number" class="form-control shadow-none rounded-0" aria-label="Min price" value="300" id="txtMinPrice" readonly>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <label for="txtMaxPrice" class="form-label">Max price</label>
+                                                                    <div class="input-group mb-6">
+                                                                        <span class="input-group-text rounded-0">$</span>
+                                                                        <input type="number" class="form-control shadow-none rounded-0" aria-label="Max price" value="1000" id="txtMaxPrice" readonly>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="price-slider">
+                                                                <div class="slider">
+                                                                    <div class="progress"></div>
+                                                                </div>
+                                                                <div class="range-input">
+                                                                    <input type="range" class="range-min" min="0" max="2500" value="300" step="10">
+                                                                    <input type="range" class="range-max" min="0" max="2500" value="1000" step="10">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                            <!-- /Price -->
+                                            <!-- Sizes -->
+                                            <!-- <div class="accordion-item">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button bg-transparent rounded-0 shadow-none text-body-emphasis collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filterSize" aria-expanded="false" aria-controls="filterSize">
+                                                        <span class="fs-5 fw-medium">Size</span>
+                                                    </button>
+                                                </h2>
+                                                <div id="filterSize" class="accordion-collapse collapse">
+                                                    <div class="accordion-body">
+                                                        <ul class="list-inline mb-0">
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="radio" class="btn-check" name="size-group" id="sizeXS">
+                                                                    <label class="btn btn-sm btn-outline-secondary mw-sm rounded-0" for="sizeXS">XS</label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="radio" class="btn-check" name="size-group" id="sizeS">
+                                                                    <label class="btn btn-sm btn-outline-secondary mw-sm rounded-0" for="sizeS">S</label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="radio" class="btn-check" name="size-group" id="sizeM">
+                                                                    <label class="btn btn-sm btn-outline-secondary mw-sm rounded-0" for="sizeM">M</label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="radio" class="btn-check" name="size-group" id="sizeL">
+                                                                    <label class="btn btn-sm btn-outline-secondary mw-sm rounded-0" for="sizeL">L</label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="radio" class="btn-check" name="size-group" id="sizeXL">
+                                                                    <label class="btn btn-sm btn-outline-secondary mw-sm rounded-0" for="sizeXL">XL</label>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                            <!-- /Sizes -->
+                                            <!-- Colors -->
+                                            <!-- <div class="accordion-item">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button bg-transparent rounded-0 shadow-none text-body-emphasis collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filterColor" aria-expanded="false" aria-controls="filterColor">
+                                                        <span class="fs-5 fw-medium">Color</span>
+                                                    </button>
+                                                </h2>
+                                                <div id="filterColor" class="accordion-collapse collapse">
+                                                    <div class="accordion-body">
+                                                        <ul class="list-inline mb-0">
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="checkbox" class="btn-check" id="colorRed">
+                                                                    <label class="btn btn-sm btn-color btn-color-red rounded-0" for="colorRed"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="checkbox" class="btn-check" id="colorPink">
+                                                                    <label class="btn btn-sm btn-color btn-color-pink rounded-0" for="colorPink"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="checkbox" class="btn-check" id="colorPuple">
+                                                                    <label class="btn btn-sm btn-color btn-color-purple rounded-0" for="colorPuple"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="checkbox" class="btn-check" id="colorblue">
+                                                                    <label class="btn btn-sm btn-color btn-color-blue rounded-0" for="colorblue"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="checkbox" class="btn-check" id="colorGreen">
+                                                                    <label class="btn btn-sm btn-color btn-color-green rounded-0" for="colorGreen"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="checkbox" class="btn-check" id="colorYellow">
+                                                                    <label class="btn btn-sm btn-color btn-color-yellow rounded-0" for="colorYellow"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="checkbox" class="btn-check" id="colorOrange">
+                                                                    <label class="btn btn-sm btn-color btn-color-orange rounded-0" for="colorOrange"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="checkbox" class="btn-check" id="colorBrown">
+                                                                    <label class="btn btn-sm btn-color btn-color-brown rounded-0" for="colorBrown"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="checkbox" class="btn-check" id="colorGray">
+                                                                    <label class="btn btn-sm btn-color btn-color-gray rounded-0" for="colorGray"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li class="list-inline-item me-1">
+                                                                <div class="mb-2">
+                                                                    <input type="checkbox" class="btn-check" id="colorDark">
+                                                                    <label class="btn btn-sm btn-color btn-color-dark rounded-0" for="colorDark"></label>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                            <!-- /Colors -->
+                                            <!-- Brand -->
+                                            <!-- <div class="accordion-item">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button bg-transparent rounded-0 shadow-none text-body-emphasis collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filterBrand" aria-expanded="false" aria-controls="filterBrand">
+                                                        <span class="fs-5 fw-medium">Brand</span>
+                                                    </button>
+                                                </h2>
+                                                <div id="filterBrand" class="accordion-collapse collapse">
+                                                    <div class="accordion-body">
+                                                        <ul class="list-unstyled">
+                                                            <li>
+                                                                <div class="form-check mb-3">
+                                                                    <input class="form-check-input shadow-none" type="checkbox" value="" id="chkLamada">
+                                                                    <label class="form-check-label" for="chkLamada">
+                                                                        Lamda
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="form-check mb-3">
+                                                                    <input class="form-check-input shadow-none" type="checkbox" value="" id="chkBeto">
+                                                                    <label class="form-check-label" for="chkBeto">
+                                                                        Beto
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="form-check mb-3">
+                                                                    <input class="form-check-input shadow-none" type="checkbox" value="" id="chkMilax">
+                                                                    <label class="form-check-label" for="chkMilax">
+                                                                        Milax
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="form-check mb-3">
+                                                                    <input class="form-check-input shadow-none" type="checkbox" value="" id="chkNakimi">
+                                                                    <label class="form-check-label" for="chkNakimi">
+                                                                        Nakami
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                            <!-- /Brand -->
+                                            <!-- Gender -->
+                                            <!-- <div class="accordion-item">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button bg-transparent rounded-0 shadow-none text-body-emphasis collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filteGender" aria-expanded="false" aria-controls="filteGender">
+                                                        <span class="fs-5 fw-medium">Gender</span>
+                                                    </button>
+                                                </h2>
+                                                <div id="filteGender" class="accordion-collapse collapse">
+                                                    <div class="accordion-body">
+                                                        <ul class="list-unstyled">
+                                                            <li>
+                                                                <div class="form-check mb-3">
+                                                                    <input class="form-check-input shadow-none" type="radio" name="gender-group" value="" id="chkWomen">
+                                                                    <label class="form-check-label" for="chkWomen">
+                                                                        Women
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="form-check mb-3">
+                                                                    <input class="form-check-input shadow-none" type="radio" name="gender-group" value="" id="chkMen">
+                                                                    <label class="form-check-label" for="chkMen">
+                                                                        Men
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="form-check mb-3">
+                                                                    <input class="form-check-input shadow-none" type="radio" name="gender-group" value="" id="chkBoys">
+                                                                    <label class="form-check-label" for="chkBoys">
+                                                                        Boys
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div class="form-check mb-3">
+                                                                    <input class="form-check-input shadow-none" type="radio" name="gender-group" value="" id="chkGirls">
+                                                                    <label class="form-check-label" for="chkGirls">
+                                                                        Girls
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                            <!-- /Gender -->
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- Filter -->
+                        </div>
+                    </div>
+                    <div class="col-12 col-xl-9 col-lg-8">
+                        <!-- Options -->
+                        <div class="d-block d-md-flex align-items-center" data-cue="fadeIn">
+                            <div class="d-flex me-lg-auto mb-3">
+                                <button class="btn-ctr btn btn-outline-light rounded-0 me-2 d-flex d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#ocFilter" aria-controls="ocFilter">
+                                    <i class="bi bi-funnel"></i>
+                                </button>
+                                <a href="product-grid.html" class="btn-ctr btn btn-outline-light rounded-0 me-2">
+                                    <i class="bi bi-grid"></i>
+                                </a>
+                                <a href="product-list.html" class="btn-ctr btn btn-outline-light rounded-0 me-2">
+                                    <i class="bi bi-list"></i>
+                                </a>
+                            </div>
+                            <!-- <div class="d-flex align-items-center mb-3">
+                                <form class="pe-3">
+                                    <select class="form-select shadow-none rounded-0">
+                                        <option value="1" selected="selected">Default sorting</option>
+                                        <option value="2">Sort by popularity</option>
+                                        <option value="3">Sort by average rating</option>
+                                        <option value="4">Sort by latest</option>
+                                        <option value="5">Sort by price: low to high</option>
+                                        <option value="6">Sort by price: high to low</option>
+                                    </select>
+                                </form>
+                                <form>
+                                    <select class="form-select shadow-none rounded-0">
+                                        <option value="10" selected="selected">Show 10</option>
+                                        <option value="20">Show 20</option>
+                                        <option value="30">Show 30</option>
+                                        <option value="40">Show 40</option>
+                                        <option value="50">Show 50</option>
+                                    </select>
+                                </form>
+                            </div> -->
+                        </div>
+                        <!-- Options -->
+                        <!-- Product list -->
+                        <div class="row g-4" data-cues="fadeIn">
+                            {pageData.default.products.map((product: any) => (
+                                <div class="col-12 col-lg-4 col-md-6">
+                                    <div class="card card-product text-center border-0 rounded-0">
+                                        <div class="card-img-box position-relative overflow-hidden">
+                                            <a href={`/product/${product.product_id}`} class="card-img-link">
+                                                <img src={product.thumbnail} class="card-img-top rounded-0" alt={product.product_name}>
+                                            </a>
+                                            <a href="/shopping-cart.html" class="btn-add-cart btn btn-lg btn-dark w-100 fs-6 rounded-0 bottom-0 start-0 position-absolute">
+                                                <i class="bi bi-bag"></i>
+                                                <span>加入购物车</span>
+                                            </a>
+                                            <button type="button" class="btn-like fs-6 btn btn-lg btn-outline-light p-0 position-absolute top-0 end-0 rounded-circle mt-3 me-3">
+                                                <i class="bi bi-heart"></i>
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title fw-normal">
+                                                <a href={`/product/${product.product_id}`} class="link-body-emphasis">
+                                                    {product.product_name}
+                                                </a>
+                                            </h5>
+                                            <div class="card-text">
+                                                <strong class="text-danger">${product.price}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <!-- /Product list -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /Products -->
+
+        <!-- 分页 -->
+        {pageData.default.pagination.total_pages > 1 && (
+            <section class="py-5">
+                <div class="container">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mb-0">
+                            {/* 上一页 */}
+                            {pageData.default.pagination.current_page > 1 && (
+                                <li class="page-item">
+                                    <a class="page-link rounded-0" href={`/productslist/${categoryId}-${pageData.default.pagination.current_page - 1}`}>
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>
+                            )}
+                            
+                            {/* 页码 */}
+                            {Array.from({ length: pageData.default.pagination.total_pages }, (_, i) => i + 1).map((page) => {
+                                const isActive = page === pageData.default.pagination.current_page;
+                                return (
+                                    <li class={isActive ? 'page-item active' : 'page-item'}>
+                                        <a class="page-link rounded-0" href={`/productslist/${categoryId}-${page}`}>
+                                            {page}
+                                        </a>
+                                    </li>
+                                );
+                            })}
+                            
+                            {/* 下一页 */}
+                            {pageData.default.pagination.current_page < pageData.default.pagination.total_pages && (
+                                <li class="page-item">
+                                    <a class="page-link rounded-0" href={`/productslist/${categoryId}-${pageData.default.pagination.current_page + 1}`}>
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            )}
+                        </ul>
+                    </nav>
+                </div>
+            </section>
+        )} 
+    </main>
+
+    <Footer/>
+</Layout> 

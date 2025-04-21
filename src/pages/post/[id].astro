@@ -1,0 +1,229 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/header02.astro';
+import Search from '../../components/search.astro';
+import Cart from '../../components/cart.astro';
+import Login from '../../components/login.astro';
+import Password from '../../components/password.astro';
+import Register from '../../components/register.astro';
+import Footer from '../../components/footer.astro';
+
+interface ArticleDetailData {
+    article_id: number;
+    title: string;
+    content: string;
+    status: string;
+    published_at: string;
+    template_id: number;
+    ai_id: number;
+    platform_id: number;
+    created_at: string;
+    updated_at: string;
+    category_ids: number[];
+    tag_ids: number[];
+    images: string[];
+    meta: Array<{
+        meta_id: number;
+        article_id: number;
+        meta_key: string;
+        meta_value: string;
+        type: number;
+        template_id: number;
+        group_id: number;
+        sort_order: number;
+        ai_id: number;
+        created_at: string;
+        updated_at: string;
+        field_id: number;
+        meta_category_ids: number[];
+    }>;
+}
+
+interface Category {
+    category_id: number;
+    category_name: string;
+    category_description: string;
+    meta_keywords: string;
+    status: number;
+    parent_id: number | null;
+    sort_order: number;
+    created_at: string;
+    updated_at: string;
+    platform_id: number;
+    children_count: number;
+    children: Category[];
+}
+
+interface Tag {
+    tag_id: number;
+    tag_name: string;
+    type: number;
+    platform_id: number;
+    created_at: string;
+    article_count: number;
+}
+
+// 获取动态路由参数
+const { id } = Astro.params;
+
+// 获取查询参数
+const url = new URL(Astro.request.url);
+
+if (!id) {
+    return Astro.redirect('/404');
+}
+
+// 获取文章详情数据
+const pageData = await import(`../../data/articles/items/${id}.js`) as { default: ArticleDetailData };
+const article = pageData.default;
+
+// 获取分类数据
+const categoriesData = await import('../../data/articles/categories/categories.js') as { default: { categories: Category[], total: number }[] };
+const categories = categoriesData.default[0].categories;
+
+// 获取标签数据
+const tagsData = await import('../../data/articles/tags/tags.js') as { default: Tag[] };
+const tags = tagsData.default;
+
+// 格式化日期
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).replace(/\//g, '-');
+};
+
+// 获取分类名称
+const getCategoryName = (categoryId: number) => {
+    // 递归查找分类
+    const findCategory = (categories: Category[], id: number): Category | undefined => {
+        for (const category of categories) {
+            if (category.category_id === id) {
+                return category;
+            }
+            if (category.children && category.children.length > 0) {
+                const found = findCategory(category.children, id);
+                if (found) return found;
+            }
+        }
+        return undefined;
+    };
+    
+    const category = findCategory(categories, categoryId);
+    return category ? category.category_name : '未分类';
+};
+
+// 获取标签名称
+const getTagName = (tagId: number) => {
+    const tag = tags.find(t => t.tag_id === tagId);
+    return tag ? tag.tag_name : '未分类';
+};
+
+// 获取完整的文章内容，包括 meta 中 type 为 1 的内容
+const getFullContent = () => {
+    let fullContent = article.content;
+    
+    // 查找 type 为 1 的 meta 内容
+    const typeOneMeta = article.meta.find(meta => meta.type === 1);
+    if (typeOneMeta) {
+        // 将 meta_value 添加到内容后面
+        fullContent += typeOneMeta.meta_value;
+    }
+    
+    return fullContent;
+};
+---
+
+<Layout title={article.title}>
+    <Header />
+    <Search />
+    <Cart />
+    <Login />
+    <Password />
+    <Register />
+    <main>
+        <!-- Title -->
+        <section id="titile" class="page-title page-title-sm mb-5 bg-body-secondary">
+            <div class="container">
+                <div class="d-flex align-items-center">
+                    <nav aria-label="breadcrumb" class="me-auto">
+                        <ol class="breadcrumb mb-3 text-secondary">
+                            <li class="breadcrumb-item"><a href="/" class="link-dark">首页</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">{article.title}</li>
+                        </ol>
+                    </nav>
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center text-secondary">
+                            <h6 class="me-2 mb-0">所属分类:</h6>
+                            <ul class="list-inline mb-0">
+                                {article.category_ids.map((categoryId) => (
+                                    <li class="list-inline-item">
+                                        <a href={`/postlist/${categoryId}-1`}>{getCategoryName(categoryId)}</a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /Title -->
+
+        <!-- Post -->
+        <section id="post" class="mb-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-xl-12">
+                        <!-- Content -->
+                        <div>
+                            <h1 class="mb-3">{article.title}</h1>
+                            <div class="d-flex align-items-center fw-light mb-4 text-secondary">
+                                <span class="me-3">发布时间：{formatDate(article.published_at)}</span>
+                            </div>
+                            <!-- 文章内容开始 -->
+                            <div class="mb-4" set:html={getFullContent()}>
+                            </div>
+                            <!-- 文章内容结束 -->
+                            <!-- 分享开始 -->
+                            <div class="mb-4">
+                                <div class="mb-8">
+                                    <div class="d-flex align-items-center">
+                                        <h2 class="h6 me-2 mb-0">分享此文章:</h2>
+                                        <div class="social-links d-inline-flex align-items-center">
+                                            <a href="#" class="ms-1 me-1"><i class="bi bi-facebook"></i></a>
+                                            <a href="#" class="ms-1 me-1"><i class="bi bi-twitter"></i></a>
+                                            <a href="#" class="ms-1 me-1"><i class="bi bi-instagram"></i></a>
+                                            <a href="#" class="ms-1 me-1"><i class="bi bi-pinterest"></i></a>
+                                            <a href="#" class="ms-1 me-1"><i class="bi bi-youtube"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>  
+                            <!-- 分享结束 -->
+                            <hr class="mt-5 mb-5">
+                            <!-- 文章TAG开始 -->
+                            <div class="mb-4">
+                                <h2 class="h3 mb-4">文章标签:</h2>
+                                <ul class="tag-list list-inline fw-medium">
+                                    {article.tag_ids.map((tagId) => (
+                                        <li class="list-inline-item me-3">
+                                            <a href={`/posttag/${tagId}-1`} class="link-secondary link-hover-primary">
+                                                {getTagName(tagId)}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <!-- 文章TAG结束 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /Post -->
+
+    </main>
+    <Footer />
+</Layout>

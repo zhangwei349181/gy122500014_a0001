@@ -1,0 +1,56 @@
+---
+import Layout from '../../layouts/Layout.astro'; 
+import Header from '../../components/header02.astro';
+import Search from '../../components/search.astro';
+import Cart from '../../components/cart.astro';
+import Login from '../../components/login.astro';
+import Password from '../../components/password.astro';
+import Register from '../../components/register.astro';
+import Dashboard01 from '../../components/dashboard.astro';
+import Dashboardoverview from '../../components/dashboard-overview.astro';
+import Dashboardpayment from '../../components/dashboardpayment.astro';
+import Usermenu from '../../components/usermenu.astro';
+import Footer from '../../components/footer.astro';
+
+---
+
+<Layout title="shopping cart">
+
+    <Header/>
+    <Search/>
+    <Cart/>
+    <Login/>
+    <Password/>
+    <Register/>
+    
+    <!-- Main -->
+    <main>
+
+        <Usermenu/>
+
+        <!-- Dashboard -->
+        <section id="dashboard" class="mb-5">
+            <div class="container">
+                <div class="row g-0 g-md-5 mb-5">
+                  <Dashboard01></Dashboard01>
+                    <div class="col-12">
+                        <h1 class="h2 mb-4 pb-2">Dashboard</h1>
+                        <!-- Overview -->
+                        <Dashboardoverview/>
+                        <!-- /Overview -->
+                        <!-- Order -->
+                        <Dashboardpayment/>
+                        <!-- Order -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /dashboard -->
+
+    </main>
+    <!-- /Main -->
+
+    <Footer/>
+
+
+</Layout>
