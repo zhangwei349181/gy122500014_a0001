@@ -14,7 +14,8 @@
 		"@astrojs/cloudflare": "^12.3.1",
 		"astro": "^5.5.5",
 		"grapesjs": "^0.22.6",
-		"grapesjs-preset-webpage": "^1.0.3"
+		"grapesjs-preset-webpage": "^1.0.3",
+		"qrcode": "^1.5.3"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20250327.0",
